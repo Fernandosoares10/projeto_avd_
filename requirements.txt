@@ -1,0 +1,10 @@
+# [IA] Claude Code – lista de dependencias (somente bibliotecas permitidas no enunciado)
+# Python 3.11+
+pandas
+numpy
+matplotlib
+seaborn
+plotly
+scikit-learn
+streamlit
+jupyter
