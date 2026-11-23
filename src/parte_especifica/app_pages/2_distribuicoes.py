@@ -13,10 +13,10 @@ from dados import (
     carregar_bank,
 )
 
-# Nota analitica da visualizacao exploratoria 2 (texto do grupo, igual ao do notebook)
-NOTA_VIZ2_O_QUE_MOSTRA = "_(texto do grupo)_"
-NOTA_VIZ2_INSIGHT = "_(texto do grupo)_"
-NOTA_VIZ2_POR_QUE = "_(texto do grupo)_"
+# Nota analitica da visualizacao exploratoria 2 (texto do grupo, adaptado do notebook)
+NOTA_VIZ2_O_QUE_MOSTRA = "O gráfico mostra a variável `Total_Trans_Ct`, que representa a quantidade de transações em 12 meses, comparando os grupos `Ficou` e `Cancelou`, derivados de `Attrition_Flag`. A largura do violino representa a densidade dos valores, ou seja, onde há maior concentração de clientes. A caixa dentro de cada violino mostra o primeiro quartil (Q1), a mediana e o terceiro quartil (Q3)."
+NOTA_VIZ2_INSIGHT = "Na base completa, sem filtros, a mediana de quem cancelou é 43 transações, enquanto a de quem ficou é 71. Portanto, a mediana de quem cancelou fica 28 transações abaixo da mediana de quem ficou. Os dois picos aparecem no grupo `Ficou`, sugerindo uma distribuição bimodal e a existência de dois perfis de clientes ativos, com níveis de uso distintos; os clientes que cancelaram estão mais concentrados em uma faixa mais baixa de transações."
+NOTA_VIZ2_POR_QUE = "O violino foi escolhido em vez do boxplot porque, além de mostrar os quartis, a mediana e a comparação entre os grupos, evidencia a forma da distribuição e torna visíveis os dois picos da distribuição bimodal observada em `Total_Trans_Ct`."
 
 df = carregar_bank().assign(Situacao=lambda d: d[COLUNA_ALVO].map(ROTULOS_SITUACAO))
 colunas_numericas = df.select_dtypes(include="number").columns.drop("CLIENTNUM").tolist()
