@@ -5,7 +5,7 @@ Disciplina: Análise e Visualização de Dados (AVD), CESAR School, 2026.2
 ## Integrantes
 
 - Fernando Soares da Silva
-- _(a preencher)_
+- Luis Guilherme Lauria
 - _(a preencher)_
 - _(a preencher)_
 
@@ -13,7 +13,7 @@ Disciplina: Análise e Visualização de Dados (AVD), CESAR School, 2026.2
 
 | Parte | Dataset | Local no repositório |
 |---|---|---|
-| Parte Comum | A definir: Obesity ([UCI 544](https://archive.ics.uci.edu/dataset/544)) ou Wine Quality ([UCI 186](https://archive.ics.uci.edu/dataset/186)) | `data/parte_comum/` |
+| Parte Comum | Obesity, Estimation of Obesity Levels Based on Eating Habits and Physical Condition ([UCI 544](https://archive.ics.uci.edu/dataset/544)) | `data/parte_comum/obesity.csv` |
 | Parte Específica | Credit Card Customers (BankChurners), [Kaggle](https://www.kaggle.com/datasets/sakshigoyal7/credit-card-customers) | `data/parte_especifica/BankChurners.csv` |
 
 ## Instalação
