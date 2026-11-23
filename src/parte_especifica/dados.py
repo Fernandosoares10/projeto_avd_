@@ -13,6 +13,11 @@ COLUNA_ALVO = "Attrition_Flag"
 CLIENTE_ATIVO = "Existing Customer"
 CLIENTE_CANCELOU = "Attrited Customer"
 
+# Rotulos em portugues e cores fixas da situacao do cliente (mesmas cores em todos os graficos)
+ROTULOS_SITUACAO = {CLIENTE_ATIVO: "Ficou", CLIENTE_CANCELOU: "Cancelou"}
+ORDEM_SITUACAO = ["Ficou", "Cancelou"]
+CORES_SITUACAO = {"Ficou": "#4C72B0", "Cancelou": "#C44E52"}
+
 # Ordem natural das categorias ordinais (usada em graficos e filtros)
 ORDEM_CATEGORIAS = {
     "Education_Level": ["Uneducated", "High School", "College", "Graduate", "Post-Graduate", "Doctorate", "Unknown"],
