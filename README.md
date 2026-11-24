@@ -16,11 +16,17 @@ Disciplina: Análise e Visualização de Dados (AVD), CESAR School, 2026.2
 | Parte Comum | Obesity, Estimation of Obesity Levels Based on Eating Habits and Physical Condition ([UCI 544](https://archive.ics.uci.edu/dataset/544)) | `data/parte_comum/obesity.csv` |
 | Parte Específica | Credit Card Customers (BankChurners), [Kaggle](https://www.kaggle.com/datasets/sakshigoyal7/credit-card-customers) | `data/parte_especifica/BankChurners.csv` |
 
+O `BankChurners.csv` do repositório já está sem as duas últimas colunas do arquivo original do Kaggle
+(`Naive_Bayes_Classifier_...`), que são saídas de um modelo e não dados dos clientes.
+
 ## Instalação
 
 Requer Python 3.11 ou superior.
 
 ```bash
+git clone https://github.com/Fernandosoares10/projeto_avd_.git
+cd projeto_avd_
+
 python -m venv venv
 
 # Windows
@@ -33,17 +39,56 @@ pip install -r requirements.txt
 
 ## Execução
 
-Parte Comum (notebooks):
+Todos os comandos abaixo partem da **raiz do projeto**, com o ambiente virtual ativado.
+
+### Parte Comum (Obesity)
 
 ```bash
 jupyter notebook notebooks/parte_comum/
 ```
 
-Parte Específica (dashboard):
+Ordem sugerida dos notebooks:
+
+| Ordem | Notebook | Conteúdo | Saídas em `out/parte_comum/` |
+|---|---|---|---|
+| 1 | `eda_comum.ipynb` | EDA estrutural, distribucional e outliers | gráficos `eda_*.png` e `obesity_tratado.csv` |
+| 2 | `kmeans_passada2.ipynb` | Passada 2 (k fixo = 7): padronização, K-Means, visualização (PCA), mapeamento cluster → classe, matriz de confusão e métricas | `passada2_clusters_pca.png`, `passada2_matriz_confusao.png` |
+| | _(a preencher: EDA relacional e Passada 1)_ | | |
+
+### Parte Específica (BankChurners)
+
+Notebooks em `src/parte_especifica/`. O `eda_unknown.ipynb` gera o dataset tratado usado pelos demais e pelo
+dashboard, então deve ser executado antes deles.
+
+| Ordem | Notebook | Conteúdo | Saídas em `out/parte_especifica/` |
+|---|---|---|---|
+| 1 | `eda_estrutural.ipynb` | Dimensões, tipos das variáveis e qualidade dos dados | |
+| 2 | `eda_unknown.ipynb` | Valores Unknown: investigação do mecanismo de ausência e tratamento | `bankchurners_tratado.csv` |
+| 3 | `eda_distribucional.ipynb` | Distribuição de cada variável | gráficos `eda_*.png` |
+| 4 | `viz_exploratoria_1.ipynb` | Visualização exploratória 1 (boxplot de `Total_Trans_Amt` por situação do cliente) e nota analítica | `viz_exploratoria_1_boxplot_trans_amt.png` |
+| 5 | `viz_exploratoria_2.ipynb` | Visualização exploratória 2 (violino de `Total_Trans_Ct` por situação do cliente) e nota analítica | `viz_exploratoria_2_violino_trans_ct.png` |
+| | _(a preencher: EDA relacional, outliers, visualizações exploratórias 3 e 4, explanatórias 1 e 2)_ | | |
+
+### Dashboard (Streamlit)
 
 ```bash
 streamlit run src/parte_especifica/dashboard.py
 ```
+
+O dashboard abre no navegador em `http://localhost:8501`. As páginas ficam em `src/parte_especifica/app_pages/` e
+entram no menu lateral automaticamente quando o arquivo existe:
+
+| Página | Arquivo |
+|---|---|
+| Início | `inicio.py` |
+| Qualidade dos dados | `1_qualidade_dos_dados.py` |
+| Distribuições | `2_distribuicoes.py` |
+| Relações | `3_relacoes.py` |
+| Outliers | `4_outliers.py` |
+| Obesity: K-Means (Parte Comum) | `5_parte_comum.py` |
+
+Funções e constantes compartilhadas pelas páginas (leitura dos dados, cores, dicionário das variáveis) ficam em
+`src/parte_especifica/dados.py`.
 
 ## Estrutura de pastas
 
@@ -51,19 +96,25 @@ streamlit run src/parte_especifica/dashboard.py
 projeto-avd/
 ├─ README.md
 ├─ requirements.txt
-├─ docs/                  # DECLARACAO_IA.pdf
+├─ relatorio.pdf                      # relatório final (ambas as partes)
+├─ docs/
+│  ├─ DECLARACAO_IA.pdf               # declaração de uso de IA assinada por todos
+│  └─ rascunhos/                      # rascunhos das seções do relatório
 ├─ data/
-│  ├─ parte_comum/
-│  └─ parte_especifica/
+│  ├─ parte_comum/obesity.csv
+│  └─ parte_especifica/BankChurners.csv
 ├─ out/
-│  ├─ parte_comum/
-│  └─ parte_especifica/
+│  ├─ parte_comum/                    # gráficos e dataset tratado da Parte Comum
+│  └─ parte_especifica/               # gráficos e dataset tratado da Parte Específica
 ├─ notebooks/
-│  └─ parte_comum/
-├─ src/
-│  ├─ parte_comum/
-│  └─ parte_especifica/
-└─ relatorio.pdf
+│  └─ parte_comum/                    # EDA e K-Means do Obesity
+└─ src/
+   ├─ parte_comum/
+   └─ parte_especifica/
+      ├─ *.ipynb                      # EDA e visualizações do BankChurners
+      ├─ dashboard.py                 # ponto de entrada do Streamlit
+      ├─ dados.py                     # leitura dos dados e constantes do dashboard
+      └─ app_pages/                   # uma página do dashboard por arquivo
 ```
 
 ## Matriz de contribuição
@@ -110,4 +161,13 @@ Divisão das tarefas combinada pelo grupo. **R** = responsável pela entrega; **
 
 ## Uso de IA
 
-_(a preencher; declaração assinada em `docs/DECLARACAO_IA.pdf`)_
+O grupo usou IA generativa conforme as regras do enunciado. Os trechos de código feitos com apoio de IA estão
+marcados no próprio código com o comentário:
+
+```python
+# [IA] <ferramenta> – <finalidade>
+```
+
+A declaração completa, assinada por todos os integrantes, está em `docs/DECLARACAO_IA.pdf`.
+
+_(a preencher pelo grupo: ferramentas usadas e para quê)_
