@@ -1,0 +1,5 @@
+# [IA] Claude Code – dependências de teste
+# Somente para desenvolvimento e testes (não faz parte do requirements.txt do enunciado)
+-r requirements.txt
+pytest
+pytest-cov

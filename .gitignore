@@ -23,3 +23,7 @@ Thumbs.db
 desktop.ini
 .vscode/
 .idea/
+
+# Testes e cobertura
+.coverage
+htmlcov/
