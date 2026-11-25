@@ -12,6 +12,8 @@ CAMINHO_BRUTO = RAIZ / "data" / "parte_especifica" / "BankChurners.csv"
 
 COR_ATIVO = "#4C72B0"
 COR_CANCELADO = "#C44E52"
+COR_PERFIL_A = "#4C72B0"
+COR_PERFIL_B = "#DD8452"
 
 
 @st.cache_data
@@ -33,10 +35,35 @@ def carregar_dados() -> pd.DataFrame:
     return df
 
 
+def renderizar_cartao_perfil(df_perfil: pd.DataFrame, titulo: str, taxa_ref: float) -> None:
+    st.markdown(f"#### {titulo}")
+    n_cli = len(df_perfil)
+    taxa_churn = df_perfil["cancelou"].mean() * 100 if n_cli > 0 else 0.0
+    delta_taxa = taxa_churn - taxa_ref
+
+    m1, m2 = st.columns(2)
+    m1.metric("Clientes", f"{n_cli:,}".replace(",", "."))
+    m2.metric(
+        "Taxa de cancelamento",
+        f"{taxa_churn:.2f}%",
+        f"{delta_taxa:+.2f} p.p. vs. base filtrada",
+        delta_color="inverse",
+    )
+
+    m3, m4 = st.columns(2)
+    m3.metric("Mediana de transações", f"{df_perfil['Total_Trans_Ct'].median():.0f}")
+    m4.metric("Mediana valor transac.", f"$ {df_perfil['Total_Trans_Amt'].median():,.0f}".replace(",", "."))
+
+    m5, m6 = st.columns(2)
+    m5.metric("Mediana saldo rotativo", f"$ {df_perfil['Total_Revolving_Bal'].median():,.0f}".replace(",", "."))
+    m6.metric("Média de contatos (12m)", f"{df_perfil['Contacts_Count_12_mon'].mean():.2f}")
+
+
 def main() -> None:
     st.markdown(
         "Exploração das correlações entre variáveis numéricas, interações comportamentais "
-        "associadas ao cancelamento (`Attrition_Flag`) e verificação das variáveis derivadas no **BankChurners**."
+        "associadas ao cancelamento (`Attrition_Flag`), verificação das variáveis derivadas "
+        "e **comparação lado a lado** entre perfis de clientes no **BankChurners**."
     )
 
     df = carregar_dados()
@@ -45,7 +72,7 @@ def main() -> None:
         if c not in ["Attrition_Flag", "cancelou"]
     ]
 
-    # Filtros laterais básicos (status e cartão)
+    # Filtros laterais básicos (cartão e método de correlação)
     st.sidebar.header("Filtros — Relações")
     cartoes = sorted(df["Card_Category"].dropna().unique().tolist())
     cartoes_sel = st.sidebar.multiselect("Categoria do cartão", cartoes, default=cartoes)
@@ -231,6 +258,124 @@ def main() -> None:
             f"**{df_filtrado['Avg_Utilization_Ratio'].corr(df_filtrado['cancelou']):+.4f}**.  \n"
             "Informativa para visualização e diagnóstico de desengajamento."
         )
+
+    st.divider()
+
+    # 6. Bônus — Comparação lado a lado entre perfis
+    st.subheader("6. Comparação lado a lado entre perfis de clientes")
+    st.caption(
+        "Escolha uma dimensão de segmentação e selecione dois grupos (Perfil A e Perfil B) "
+        "para comparar métricas comportamentais, distribuição e dispersão lado a lado."
+    )
+
+    dimensoes_disponiveis = {
+        "Status (Ativo vs. Cancelado)": "Status",
+        "Categoria do cartão": "Card_Category",
+        "Faixa de renda": "Income_Category",
+        "Escolaridade": "Education_Level",
+        "Estado civil": "Marital_Status",
+        "Gênero": "Gender",
+    }
+    dimensoes_validas = {
+        rotulo: col for rotulo, col in dimensoes_disponiveis.items()
+        if col in df_filtrado.columns and df_filtrado[col].nunique() >= 2
+    }
+
+    if not dimensoes_validas:
+        st.info("Selecione mais categorias nos filtros laterais para habilitar a comparação lado a lado.")
+        return
+
+    s1, s2, s3 = st.columns([1.2, 1, 1])
+    with s1:
+        rotulo_dim = st.selectbox("Dimensão de comparação", list(dimensoes_validas.keys()))
+        col_dim = dimensoes_validas[rotulo_dim]
+        opcoes_grupo = sorted(df_filtrado[col_dim].dropna().unique().tolist())
+
+    idx_a = opcoes_grupo.index("Existing Customer") if "Existing Customer" in opcoes_grupo else 0
+    idx_b = opcoes_grupo.index("Attrited Customer") if "Attrited Customer" in opcoes_grupo else min(1, len(opcoes_grupo) - 1)
+
+    with s2:
+        perfil_a = st.selectbox("Perfil A (esquerda)", opcoes_grupo, index=idx_a, key="comp_perfil_a")
+    with s3:
+        perfil_b = st.selectbox("Perfil B (direita)", opcoes_grupo, index=idx_b, key="comp_perfil_b")
+
+    df_a = df_filtrado[df_filtrado[col_dim] == perfil_a]
+    df_b = df_filtrado[df_filtrado[col_dim] == perfil_b]
+
+    col_esq, col_dir = st.columns(2)
+    with col_esq:
+        renderizar_cartao_perfil(df_a, f"Perfil A: {perfil_a}", taxa_geral)
+    with col_dir:
+        renderizar_cartao_perfil(df_b, f"Perfil B: {perfil_b}", taxa_geral)
+
+    # Gráficos comparativos lado a lado
+    var_comp = st.selectbox(
+        "Variável numérica para comparar distribuições",
+        colunas_numericas,
+        index=colunas_numericas.index("Total_Trans_Ct") if "Total_Trans_Ct" in colunas_numericas else 0,
+    )
+
+    df_comp = pd.concat([
+        df_a.assign(Grupo=f"A: {perfil_a}"),
+        df_b.assign(Grupo=f"B: {perfil_b}"),
+    ], ignore_index=True)
+
+    mapa_cores = {
+        f"A: {perfil_a}": COR_PERFIL_A,
+        f"B: {perfil_b}": COR_PERFIL_B if perfil_b != perfil_a else COR_PERFIL_A,
+    }
+
+    g1, g2 = st.columns(2)
+    with g1:
+        fig_box_comp = px.box(
+            df_comp,
+            x="Grupo",
+            y=var_comp,
+            color="Grupo",
+            color_discrete_map=mapa_cores,
+            title=f"Distribuição (Boxplot): {var_comp}",
+        )
+        fig_box_comp.update_layout(showlegend=False, height=400, xaxis_title="")
+        st.plotly_chart(fig_box_comp, use_container_width=True)
+
+    with g2:
+        fig_hist_comp = px.histogram(
+            df_comp,
+            x=var_comp,
+            color="Grupo",
+            barmode="overlay",
+            histnorm="percent",
+            opacity=0.6,
+            color_discrete_map=mapa_cores,
+            title=f"Densidade relativa (%): {var_comp}",
+            labels={"count": "% do grupo"},
+        )
+        fig_hist_comp.update_layout(height=400, yaxis_title="% de clientes no perfil")
+        st.plotly_chart(fig_hist_comp, use_container_width=True)
+
+    # Tabela resumo lado a lado das principais métricas comportamentais
+    metricas_tabela = [
+        "Total_Trans_Ct",
+        "Total_Trans_Amt",
+        "Total_Ct_Chng_Q4_Q1",
+        "Total_Revolving_Bal",
+        "Avg_Utilization_Ratio",
+        "Contacts_Count_12_mon",
+        "Months_Inactive_12_mon",
+        "Credit_Limit",
+    ]
+    metricas_tabela = [m for m in metricas_tabela if m in df_filtrado.columns]
+
+    tabela_comp = pd.DataFrame({
+        f"Média — {perfil_a}": df_a[metricas_tabela].mean(),
+        f"Mediana — {perfil_a}": df_a[metricas_tabela].median(),
+        f"Média — {perfil_b}": df_b[metricas_tabela].mean(),
+        f"Mediana — {perfil_b}": df_b[metricas_tabela].median(),
+    })
+    tabela_comp["Diferença (Média B - A)"] = (
+        tabela_comp[f"Média — {perfil_b}"] - tabela_comp[f"Média — {perfil_a}"]
+    )
+    st.dataframe(tabela_comp.round(2), use_container_width=True)
 
 
 main()
