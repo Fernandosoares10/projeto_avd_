@@ -69,7 +69,9 @@ dashboard, então deve ser executado antes deles.
 | 4 | `viz_exploratoria_1.ipynb` | Visualização exploratória 1 (boxplot de `Total_Trans_Amt` por situação do cliente) e nota analítica | `viz_exploratoria_1_boxplot_trans_amt.png` |
 | 5 | `viz_exploratoria_2.ipynb` | Visualização exploratória 2 (violino de `Total_Trans_Ct` por situação do cliente) e nota analítica | `viz_exploratoria_2_violino_trans_ct.png` |
 | 6 | `eda_outliers.ipynb` | Outliers (critérios IQR e z-score), plausibilidade, relação com o cancelamento e comparação das estratégias de tratamento. A lógica está em `outliers.py` e é testada em `tests/parte_especifica/` | `eda_outliers_boxplots.png`, `eda_outliers_cancelamento.png`, `eda_outliers_tratamento.png` |
-| | _(a preencher: EDA relacional, visualizações exploratórias 3 e 4, explanatórias 1 e 2)_ | | |
+| 7 | `viz_exploratoria_4.ipynb` | Visualização exploratória 4 (dispersão de `Total_Trans_Ct` × `Total_Trans_Amt`, colorida por situação do cliente) e nota analítica | `viz_exploratoria_4_dispersao_trans_ct_amt.png` |
+| 8 | `viz_explanatoria_2.ipynb` | Visualização explanatória 2 (taxa de cancelamento por número de produtos, `Total_Relationship_Count`) e nota analítica | `viz_explanatoria_2_barras_produtos.png` |
+| | _(a preencher: EDA relacional, visualização exploratória 3, explanatória 1)_ | | |
 
 ### Dashboard (Streamlit)
 
