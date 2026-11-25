@@ -7,7 +7,7 @@ Disciplina: Análise e Visualização de Dados (AVD), CESAR School, 2026.2
 - Fernando Soares da Silva
 - Luis Guilherme Lauria
 - Adrian Michael de Araujo
-- _(a preencher)_
+- Pero Loureiro Galvão Guerra
 
 ## Datasets
 
