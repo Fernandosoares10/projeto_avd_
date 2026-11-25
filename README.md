@@ -6,7 +6,7 @@ Disciplina: Análise e Visualização de Dados (AVD), CESAR School, 2026.2
 
 - Fernando Soares da Silva
 - Luis Guilherme Lauria
-- _(a preencher)_
+- Adrian
 - _(a preencher)_
 
 ## Datasets
@@ -53,7 +53,8 @@ Ordem sugerida dos notebooks:
 |---|---|---|---|
 | 1 | `eda_comum.ipynb` | EDA estrutural, distribucional e outliers | gráficos `eda_*.png` e `obesity_tratado.csv` |
 | 2 | `kmeans_passada2.ipynb` | Passada 2 (k fixo = 7): padronização, K-Means, visualização (PCA), mapeamento cluster → classe, matriz de confusão e métricas | `passada2_clusters_pca.png`, `passada2_matriz_confusao.png` |
-| | _(a preencher: EDA relacional e Passada 1)_ | | |
+| 3 | `kmeans_passada1.ipynb` | Passada 1 (k de 2 a 10): padronização, K-Means, Método do Cotovelo, visualização (PCA), mapeamento cluster → classe, matriz de confusão e métricas. A lógica está em `src/parte_comum/` e é testada em `tests/` | `passada1_cotovelo.png`, `passada1_clusters_pca.png`, `passada1_matriz_confusao.csv` |
+| | _(a preencher: EDA relacional)_ | | |
 
 ### Parte Específica (BankChurners)
 
@@ -89,6 +90,16 @@ entram no menu lateral automaticamente quando o arquivo existe:
 
 Funções e constantes compartilhadas pelas páginas (leitura dos dados, cores, dicionário das variáveis) ficam em
 `src/parte_especifica/dados.py`.
+
+## Testes
+
+As funções da Passada 1 (`src/parte_comum/`) têm testes em `tests/`. As dependências de teste ficam num arquivo
+separado para não alterar o `requirements.txt`:
+
+```bash
+pip install -r requirements-dev.txt
+pytest --cov=src/parte_comum --cov-report=term-missing
+```
 
 ## Estrutura de pastas
 
