@@ -8,9 +8,12 @@ from dados import (
     COLUNA_ALVO,
     CORES_SITUACAO,
     DICIONARIO_BANK,
+    ORDEM_SITUACAO,
+    ROTULOS_SITUACAO,
     carregar_bank,
 )
 from outliers import ESTRATEGIAS, K_IQR, mascara_outliers, resumo_outliers, taxa_alvo_por_grupo, tratar
+from taxas import taxa_do_recorte, taxa_por_categoria
 
 # Decisao do grupo sobre o tratamento (proposta do notebook eda_outliers.ipynb, para revisao)
 TEXTO_DECISAO = """
@@ -175,3 +178,173 @@ with st.container(border=True):
     st.subheader("Decisao sobre o tratamento", anchor=False)
     st.markdown(TEXTO_DECISAO)
     st.caption("Proposta do notebook eda_outliers.ipynb, sujeita a revisao do grupo.")
+
+
+def dec_br(valor: float, casas: int = 1) -> str:
+    """Numero com virgula decimal para os textos corridos (as metricas seguem o padrao das outras paginas)."""
+    return f"{valor:.{casas}f}".replace(".", ",")
+
+
+# Cortes da visualizacao exploratoria 4: escolhidos olhando o grafico, so para descrever o que aparece nele
+CORTE_TRANSACOES = 60
+CORTE_VALOR_BAIXO = 3000
+FAIXA_VALOR_MEDIO = (6000, 11000)
+COLUNA_PRODUTOS = "Total_Relationship_Count"
+
+
+@st.cache_data
+def analisar_dispersao() -> dict:
+    """Numeros e grafico da exploratoria 4. Nao dependem do k do slider, entao ficam em cache."""
+    cancelou = df[COLUNA_ALVO] == CLIENTE_CANCELOU
+    df_sit = df.assign(Situacao=df[COLUNA_ALVO].map(ROTULOS_SITUACAO))
+    valor = df["Total_Trans_Amt"]
+    canto = (df["Total_Trans_Ct"] < CORTE_TRANSACOES) & (valor < CORTE_VALOR_BAIXO)
+    faixa_media = valor.between(*FAIXA_VALOR_MEDIO)
+    faixa_intermediaria = (valor >= CORTE_VALOR_BAIXO) & (valor < FAIXA_VALOR_MEDIO[0])
+    muito_alto = valor > FAIXA_VALOR_MEDIO[1]
+
+    fig = px.scatter(
+        df_sit, x="Total_Trans_Ct", y="Total_Trans_Amt", color="Situacao", opacity=0.35,
+        category_orders={"Situacao": ORDEM_SITUACAO}, color_discrete_map=CORES_SITUACAO,
+        title="A maioria dos cancelamentos esta em poucas transacoes e valores baixos",
+        labels={"Total_Trans_Ct": "Quantidade de transacoes em 12 meses",
+                "Total_Trans_Amt": "Valor total transacionado em 12 meses (US$)", "Situacao": "Situacao do cliente"},
+    )
+    fig.add_vline(x=CORTE_TRANSACOES, line_dash="dash", line_color="black")
+    fig.add_hline(y=CORTE_VALOR_BAIXO, line_dash="dash", line_color="black")
+    fig.update_layout(legend_title_text="Situacao do cliente")
+
+    return {
+        "fig": fig,
+        "medianas": df_sit.groupby("Situacao")[["Total_Trans_Ct", "Total_Trans_Amt"]].median(),
+        "correlacao": df["Total_Trans_Ct"].corr(valor),
+        "taxa_base": cancelou.mean() * 100,
+        "taxa_canto": taxa_do_recorte(df, canto, COLUNA_ALVO, CLIENTE_CANCELOU),
+        "fatia_canto": canto[cancelou].mean() * 100,
+        "canto_na_base": canto.mean() * 100,
+        "taxa_faixa_media": taxa_do_recorte(df, faixa_media, COLUNA_ALVO, CLIENTE_CANCELOU),
+        "fatia_faixa_media": faixa_media[cancelou].mean() * 100,
+        "taxa_intermediaria": taxa_do_recorte(df, faixa_intermediaria, COLUNA_ALVO, CLIENTE_CANCELOU),
+        "cancelaram_muito_alto": int(cancelou[muito_alto].sum()),
+        "n_muito_alto": int(muito_alto.sum()),
+    }
+
+
+@st.cache_data
+def analisar_produtos() -> dict:
+    """Numeros e grafico da explanatoria 2. Nao dependem do k do slider, entao ficam em cache."""
+    cancelou = df[COLUNA_ALVO] == CLIENTE_CANCELOU
+    por_produtos = taxa_por_categoria(df, COLUNA_PRODUTOS, COLUNA_ALVO, CLIENTE_CANCELOU)
+    poucos = df[COLUNA_PRODUTOS] <= 2
+    muitos = df[COLUNA_PRODUTOS] >= 4
+    taxa_base = cancelou.mean() * 100
+    taxa_poucos = taxa_do_recorte(df, poucos, COLUNA_ALVO, CLIENTE_CANCELOU)
+    taxa_muitos = taxa_do_recorte(df, muitos, COLUNA_ALVO, CLIENTE_CANCELOU)
+    razao = taxa_poucos / taxa_muitos
+
+    grafico = por_produtos.reset_index().assign(
+        Rotulo=lambda d: d[COLUNA_PRODUTOS].astype(int).astype(str) + " (n = " + d["n"].map(inteiro_br) + ")",
+        Grupo=lambda d: d[COLUNA_PRODUTOS].map(lambda p: "1 ou 2 produtos" if p <= 2 else "3 ou mais produtos"),
+    )
+    fig = px.bar(
+        grafico, x="Rotulo", y="taxa", color="Grupo", text=grafico["taxa"].map(lambda t: f"{t:.1f}%"),
+        color_discrete_map={"1 ou 2 produtos": CORES_SITUACAO["Cancelou"], "3 ou mais produtos": "#8C8C8C"},
+        title=f"Clientes com 1 ou 2 produtos tem taxa de cancelamento {dec_br(razao)} vezes a dos clientes com 4 a 6",
+        labels={"Rotulo": "Numero de produtos do banco que o cliente tem", "taxa": "Taxa de cancelamento (%)", "Grupo": ""},
+    )
+    fig.add_hline(y=taxa_base, line_dash="dash", line_color="black",
+                  annotation_text=f"Base toda: {dec_br(taxa_base)}%", annotation_position="top right")
+    fig.update_traces(textposition="outside", cliponaxis=False)
+
+    return {
+        "fig": fig,
+        "taxa_poucos": taxa_poucos,
+        "taxa_muitos": taxa_muitos,
+        "taxa_tres": por_produtos.loc[3, "taxa"],
+        "razao": razao,
+        "poucos_na_base": poucos.mean() * 100,
+        "poucos_nos_cancelados": poucos[cancelou].mean() * 100,
+    }
+
+
+def secao_dispersao() -> None:
+    d = analisar_dispersao()
+    med = d["medianas"]
+    st.subheader("Visualizacao exploratoria 4: transacoes x valor transacionado", anchor=False)
+    with st.container(horizontal=True):
+        st.metric("Mediana de transacoes: ficou", f"{med.loc['Ficou', 'Total_Trans_Ct']:.0f}", border=True)
+        st.metric("Mediana de transacoes: cancelou", f"{med.loc['Cancelou', 'Total_Trans_Ct']:.0f}", border=True)
+        st.metric("Mediana do valor (US$): ficou", f"{med.loc['Ficou', 'Total_Trans_Amt']:,.0f}", border=True)
+        st.metric("Mediana do valor (US$): cancelou", f"{med.loc['Cancelou', 'Total_Trans_Amt']:,.0f}", border=True)
+    st.plotly_chart(d["fig"], key="out_viz4")
+    st.caption("Cada ponto e um cliente; a transparencia ajuda a ler onde os pontos se sobrepoem. "
+               "As linhas tracejadas marcam 60 transacoes e US$ 3.000.")
+
+    if d["cancelaram_muito_alto"] == 0:
+        muito_alto = f"ninguem cancela ({d['cancelaram_muito_alto']} de {inteiro_br(d['n_muito_alto'])} clientes)"
+    else:
+        muito_alto = f"so {d['cancelaram_muito_alto']} de {inteiro_br(d['n_muito_alto'])} clientes cancelam"
+    limite_baixo = inteiro_br(CORTE_VALOR_BAIXO)
+    with st.expander("Nota analitica", icon=":material/edit_note:"):
+        st.markdown(
+            "**O que esta sendo mostrado:** cada ponto e um cliente. O eixo x e a quantidade de transacoes em 12 meses "
+            "(`Total_Trans_Ct`) e o eixo y o valor total transacionado no periodo (`Total_Trans_Amt`, em US$). A cor "
+            "indica se o cliente ficou ou cancelou o cartao."
+        )
+        st.markdown(
+            f"**Qual insight pode ser extraido:** as duas variaveis andam juntas (correlacao de {dec_br(d['correlacao'], 2)}): "
+            "quem faz mais transacoes tambem movimenta valores maiores. A maioria dos cancelamentos fica no canto "
+            f"inferior esquerdo: a mediana de quem cancelou e de {med.loc['Cancelou', 'Total_Trans_Ct']:.0f} transacoes "
+            f"e US$ {med.loc['Cancelou', 'Total_Trans_Amt']:,.0f}, contra {med.loc['Ficou', 'Total_Trans_Ct']:.0f} "
+            f"transacoes e US$ {med.loc['Ficou', 'Total_Trans_Amt']:,.0f} de quem ficou. Na regiao com menos de "
+            f"{CORTE_TRANSACOES} transacoes e menos de US$ {limite_baixo} (que e {dec_br(d['canto_na_base'])}% da base), "
+            f"{dec_br(d['taxa_canto'])}% dos clientes cancelaram (a taxa da base e de {dec_br(d['taxa_base'])}%), e essa "
+            f"regiao reune {dec_br(d['fatia_canto'])}% de todos os cancelamentos. Ela nao e o unico grupo: entre US$ 6.000 "
+            f"e US$ 11.000 a taxa tambem e alta ({dec_br(d['taxa_faixa_media'])}%, o que e "
+            f"{dec_br(d['fatia_faixa_media'])}% dos cancelamentos); na faixa intermediaria de US$ 3.000 a US$ 6.000 ela e "
+            f"de apenas {dec_br(d['taxa_intermediaria'])}%, e acima de US$ 11.000 {muito_alto}. Os cortes "
+            "(60 transacoes, US$ 3.000, US$ 6.000 e US$ 11.000) foram escolhidos olhando o grafico, apenas para descrever "
+            "o que aparece nele. Isso e uma associacao: o grafico nao prova que usar menos o cartao causa o cancelamento."
+        )
+        st.markdown(
+            "**Por que este tipo de visualizacao:** a dispersao mostra a relacao entre duas variaveis quantitativas e "
+            "deixa ver onde cada grupo se concentra no plano, o que o boxplot e o violino (que mostram uma variavel por "
+            "vez) nao mostram. A transparencia dos pontos evita que a sobreposicao esconda a densidade."
+        )
+
+
+def secao_produtos() -> None:
+    d = analisar_produtos()
+    st.subheader("Visualizacao explanatoria 2: produtos do banco e cancelamento", anchor=False)
+    with st.container(horizontal=True):
+        st.metric("Cancelam com 1 ou 2 produtos", f"{d['taxa_poucos']:.1f}%", border=True)
+        st.metric("Cancelam com 4 a 6 produtos", f"{d['taxa_muitos']:.1f}%", border=True)
+        st.metric("Diferenca entre os dois grupos", f"{d['razao']:.1f}x", border=True)
+    st.plotly_chart(d["fig"], key="out_expl2")
+    with st.expander("Nota analitica", icon=":material/edit_note:"):
+        st.markdown(
+            "**O que esta sendo mostrado:** a taxa de cancelamento do cartao (eixo y) de acordo com a quantidade de produtos "
+            "do banco que o cliente tem (`Total_Relationship_Count`, eixo x). Cada barra traz o numero de clientes (n) e a "
+            "linha tracejada marca a taxa da base toda. Em vermelho estao os clientes com 1 ou 2 produtos."
+        )
+        st.markdown(
+            f"**Qual insight pode ser extraido:** clientes com 1 ou 2 produtos cancelam {dec_br(d['taxa_poucos'])}% das "
+            f"vezes, contra {dec_br(d['taxa_muitos'])}% dos que tem 4 a 6 produtos: o primeiro grupo tem "
+            f"{dec_br(d['razao'])} vezes a taxa de cancelamento do segundo. Com 3 produtos a taxa e intermediaria "
+            f"({dec_br(d['taxa_tres'])}%), perto da media da base, por isso esse grupo fica fora da comparacao. Os clientes "
+            f"com 1 ou 2 produtos sao {dec_br(d['poucos_na_base'])}% da base, mas {dec_br(d['poucos_nos_cancelados'])}% de "
+            "quem cancelou. Aumentar o vinculo do cliente com o banco pode ser um caminho para reter, mas o grafico mostra "
+            "uma associacao, nao uma causa: clientes mais engajados podem contratar mais produtos justamente por isso."
+        )
+        st.markdown(
+            "**Por que este tipo de visualizacao:** como e uma visualizacao explanatoria, ela precisa levar a uma "
+            "conclusao. Barras comparam taxas entre categorias discretas de forma direta; o titulo ja enuncia a conclusao, "
+            "a cor destaca o grupo de interesse, e a linha da taxa da base da a referencia para ler cada barra."
+        )
+
+
+with st.container(border=True):
+    secao_dispersao()
+
+with st.container(border=True):
+    secao_produtos()
