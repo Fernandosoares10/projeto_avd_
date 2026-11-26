@@ -191,7 +191,7 @@ def dec_br(valor: float, casas: int = 1) -> str:
     return f"{valor:.{casas}f}".replace(".", ",")
 
 
-# Cortes da visualizacao exploratoria 4: escolhidos olhando o grafico, so para descrever o que aparece nele
+# Cortes da visualizacao exploratoria 4: definidos pelo grupo (Fernando) para separar menor e maior movimentacao
 CORTE_TRANSACOES = 60
 CORTE_VALOR_BAIXO = 3000
 FAIXA_VALOR_MEDIO = (6000, 11000)
