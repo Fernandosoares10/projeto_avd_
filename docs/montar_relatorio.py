@@ -168,7 +168,7 @@ def montar() -> str:
     h.append("""<section class="capa">
 <h1>Projeto Final: Agrupamento, EDA e Dashboard Interativo</h1>
 <p class="sub">Análise e Visualização de Dados (AVD) · CESAR School · 2026.2</p>
-<p><b>Integrantes:</b> Fernando Soares da Silva, Luis Guilherme Lauria, Pero Loureiro Galvão Guerra e Adrian Michael de Araujo</p>
+<p><b>Integrantes:</b> Fernando Soares da Silva, Luis Guilherme Lauria, Pedro Loureiro Galvão Guerra e Adrian Michael de Araujo</p>
 <p><b>Datasets:</b> Obesity (UCI 544) na Parte Comum; Credit Card Customers (BankChurners, Kaggle) na Parte Específica</p>
 <p><b>Repositório:</b> github.com/Fernandosoares10/projeto_avd_</p>
 <p><b>Data:</b> 26/11/2026</p>
