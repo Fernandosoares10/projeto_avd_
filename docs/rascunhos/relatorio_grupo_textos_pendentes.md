@@ -16,7 +16,7 @@ Perguntas de apoio (o que o enunciado pede em cada parte):
   (o enunciado pede "por que aquele tipo de visualização foi escolhido" em toda nota analítica).
 
 ## Relações entre as variáveis (Parte Comum)
-Na matriz de correlação da Parte Comum, o par com associação mais forte é peso (Weight) e altura (Height) (r = 0,46), enquanto variáveis de hábitos cotidianos como número de refeições principais (NCP) e tempo em dispositivos eletrônicos (TUE) quase não se relacionam com as demais. No gráfico de dispersão de peso × altura por classe, os extremos (Insufficient_Weight e Obesity_Type_III) ficam mais isolados nas pontas, mas as faixas intermediárias (Normal_Weight, Overweight_Level_I, Overweight_Level_II e Obesity_Type_I) se sobrepõem ao longo das fronteiras contínuas de IMC. Esse padrão ajuda a explicar o comportamento do K-Means, que consegue isolar melhor Obesity_Type_III, mas confunde as classes vizinhas de sobrepeso e obesidade leve.
+Na matriz de correlação da Parte Comum, o par com associação mais forte é peso (Weight) e altura (Height) (r = 0,46), seguido pela correlação negativa entre idade (Age) e tempo em dispositivos eletrônicos (TUE) (r = -0,30), enquanto a maioria das variáveis de hábitos (como FCVC, NCP e CH2O) apresenta correlações fracas entre si. No gráfico de dispersão de peso × altura por classe, os extremos (Insufficient_Weight e Obesity_Type_III) ficam mais isolados nas pontas, mas as faixas intermediárias (Normal_Weight, Overweight_Level_I, Overweight_Level_II e Obesity_Type_I) se sobrepõem ao longo das fronteiras contínuas de IMC. Esse padrão ajuda a explicar o comportamento do K-Means, que consegue isolar melhor Obesity_Type_III, mas confunde as classes vizinhas de sobrepeso e obesidade leve.
 
 ## Interpretação da matriz e das métricas (Passada 1)
 A matriz da Passada 1 tem sete linhas e cinco colunas porque cada linha é uma classe real e cada coluna é um dos cinco clusters do K-Means. Com menos clusters do que classes, pelo menos duas classes ficariam sem cluster. Isso aconteceu com Overweight_Level_II e Obesity_Type_II, que não foram maioria em nenhum grupo e por isso ficaram com 0% de precisão e recall. A maior parte de Obesity_Type_II (208 de 297) caiu no cluster 1, junto com Obesity_Type_III, e Overweight_Level_II se espalhou pelos cinco clusters.
@@ -30,6 +30,8 @@ Overweight_Level_II continuou com 0%. Como Obesity_Type_III ficou com dois clust
 Escolhemos o heatmap porque ele cruza duas variáveis discretas de contagem (Contacts_Count_12_mon e Months_Inactive_12_mon, ambas de 0 a 6) e mostra, em uma única grade, a taxa de cancelamento (%) e o tamanho amostral (n) em cada combinação. Gráficos de barras ou de dispersão não permitiriam comparar todas as 49 combinações de forma legível, pois gerariam excesso de barras ou sobreposição total de pontos nos mesmos valores inteiros.
 
 ## Por que este gráfico (explanatória 1)
+
+As barras agrupadas permitem comparar, lado a lado, a taxa de cancelamento entre clientes com queda forte no 4º trimestre (Q4/Q1 < 0,60) e clientes com uso estável ou crescente (Q4/Q1 ≥ 0,60) dentro de cada faixa de transações anuais (Total_Trans_Ct) e entre as faixas ao mesmo tempo. A cor vermelha destaca visualmente os grupos de maior risco em relação à média geral de 16,1% (especialmente abaixo de 60 transações), facilitando a priorização de ações de retenção pelas equipes de análise de dados, marketing e relacionamento do banco.
 
 ## Dashboard (visão geral)
 
