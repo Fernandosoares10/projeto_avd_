@@ -1,3 +1,4 @@
+# [IA] Claude Code – pagina Relacoes do dashboard (filtros, correlacoes, heatmap, explanatoria 1, comparacao lado a lado e explorador X x Y)
 from pathlib import Path
 
 import numpy as np
