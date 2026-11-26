@@ -196,7 +196,7 @@ def montar() -> str:
     h.append(md(f_metricas))
     h.append(md(f_pca))
     h.append(figura(OUT_COMUM / "passada2_clusters_pca.png", "Passada 2: clusters do K-Means e classes reais na mesma projeção PCA."))
-    h.append(figura(OUT_COMUM / "passada2_matriz_confusao.png", "Passada 2: matriz de confusão (classe real x classe mapeada)."))
+    h.append(figura(OUT_COMUM / "passada2_matriz_confusao.png", "Passada 2: matriz de confusão em % por linha (cada classe real soma 100%), com a quantidade de pessoas entre parênteses."))
 
     h.append("<h2>5. Discussão crítica</h2>")
     h.append("<h3>Passada 1 x Passada 2</h3>")
