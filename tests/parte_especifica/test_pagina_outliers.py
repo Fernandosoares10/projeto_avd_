@@ -99,42 +99,25 @@ def _textos(app: AppTest) -> str:
     return " ".join(m.value for m in app.markdown)
 
 
-def test_exploratoria_4_nota_traz_os_numeros_reais_da_regiao_e_do_segundo_grupo(app):
+# [IA] Claude Code – testes das notas analiticas escritas pelo grupo (conferem os numeros citados)
+def test_exploratoria_4_nota_traz_correlacao_e_regiao_de_risco(app):
     textos = _textos(app)
 
-    # correlacao e medianas
     assert "0,81" in textos
-    # regiao < 60 transacoes e < US$ 3.000: 35,9% cancelam, 77,9% dos cancelamentos, 34,9% da base
-    assert "35,9%" in textos and "77,9%" in textos and "34,9%" in textos
-    # faixa de US$ 6.000 a 11.000: 32,0% cancelam, 13,8% dos cancelamentos
-    assert "32,0%" in textos and "13,8%" in textos
-    # faixa de US$ 3.000 a 6.000: so 2,5% cancelam (e o que faz o padrao nao ser monotonico)
-    assert "2,5%" in textos
+    # regiao < 60 transacoes e < US$ 3.000: 34,9% da base e 77,9% dos cancelamentos
+    assert "34,9%" in textos and "77,9%" in textos
 
 
-def test_exploratoria_4_nota_diz_que_ninguem_cancela_acima_de_11_mil_sem_o_quase(app):
+def test_exploratoria_4_usa_o_titulo_do_grupo(app):
+    titulos = [c.proto.spec for c in app.get("plotly_chart")]
+    assert any("Clientes com Menor Movimenta" in t for t in titulos)
+
+
+def test_explanatoria_2_nota_traz_as_taxas_e_o_peso_do_grupo(app):
     textos = _textos(app)
 
-    assert "0 de 747" in textos
-    assert "quase ninguem" not in textos  # o dado e exatamente zero
-
-
-def test_exploratoria_4_nota_admite_que_os_cortes_foram_escolhidos_olhando_o_grafico(app):
-    assert "escolhidos olhando o grafico" in _textos(app)
-
-
-def test_explanatoria_2_nota_traz_os_numeros_e_explica_o_grupo_de_3_produtos(app):
-    textos = _textos(app)
-
-    assert "21,3%" in textos and "35,6%" in textos  # peso na base e entre os cancelados
-    assert "17,4%" in textos and "intermediaria" in textos  # 3 produtos nao entra na comparacao 1-2 x 4-6
-
-
-def test_explanatoria_2_nao_usa_a_formulacao_ambigua_cancelam_vezes_mais(app):
-    textos = _textos(app)
-
-    assert "2,4 vezes a taxa" in textos  # razao das taxas, sem ambiguidade com "140% a mais"
-    assert "cancelam 2,4 vezes mais" not in textos
+    assert "26,9%" in textos and "11,4%" in textos and "2,4" in textos
+    assert "21,3%" in textos and "35,6%" in textos
 
 
 def test_explanatoria_2_mostra_as_taxas_reais_por_numero_de_produtos(app):

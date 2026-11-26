@@ -15,6 +15,16 @@ from dados import (
 from outliers import ESTRATEGIAS, K_IQR, mascara_outliers, resumo_outliers, taxa_alvo_por_grupo, tratar
 from taxas import taxa_do_recorte, taxa_por_categoria
 
+# Notas analiticas e titulo escritos pelo grupo (Fernando), iguais aos notebooks viz_exploratoria_4 e viz_explanatoria_2
+TITULO_VIZ4 = 'Clientes com Menor Movimentação Apresentam Maior Taxa de Cancelamento'
+NOTA_VIZ4_O_QUE_MOSTRA = 'O gráfico mostra a relação entre a quantidade de transações e o valor total que cada cliente movimentou em 12 meses. Cada ponto representa um cliente, e as cores diferenciam quem continuou no banco de quem cancelou.'
+NOTA_VIZ4_INSIGHT = 'Existe uma relação positiva entre a quantidade de transações e o valor movimentado, com correlação de 0,81. Além disso, clientes que cancelaram costumam ter menos transações e movimentar menos dinheiro. O principal alerta está na região abaixo de 60 transações e US$ 3.000: ela concentra 34,9% dos clientes, mas reúne 77,9% de todos os cancelamentos. Isso indica que clientes com pouca movimentação merecem atenção do banco.'
+NOTA_VIZ4_POR_QUE = 'Porque esse tipo de gráfico permite observar a relação entre duas variáveis numéricas ao mesmo tempo. Também facilita identificar concentrações de clientes, padrões, diferenças entre quem ficou e quem cancelou e possíveis grupos de maior risco. As linhas tracejadas ajudam a separar as regiões para a análise.'
+NOTA_EXPL2_O_QUE_MOSTRA = 'O gráfico mostra a taxa de cancelamento dos clientes de acordo com a quantidade de produtos que possuem no banco, de 1 a 6. Também apresenta a quantidade de clientes em cada grupo e uma linha de referência com a taxa geral de cancelamento da base, que é de 16,1%.'
+NOTA_EXPL2_INSIGHT = 'Clientes que possuem apenas 1 ou 2 produtos apresentam uma taxa de cancelamento maior, de 26,9%. Já entre os clientes que possuem de 4 a 6 produtos, a taxa cai para 11,4%. Ou seja, clientes com menos produtos cancelam aproximadamente 2,4 vezes mais. Outro ponto importante é que os clientes com 1 ou 2 produtos representam apenas 21,3% da base, mas correspondem a 35,6% de todos os cancelamentos. Isso mostra que ter poucos produtos contratados pode ser um sinal de maior risco de cancelamento.'
+NOTA_EXPL2_POR_QUE = 'O gráfico de barras foi escolhido porque facilita comparar valores entre categorias diferentes, nesse caso, a quantidade de produtos contratados. Assim, fica fácil perceber quais grupos possuem as maiores e menores taxas de cancelamento. O vermelho foi usado para destacar os clientes com 1 ou 2 produtos, pois são os grupos que apresentam maior taxa de cancelamento e merecem mais atenção. A linha tracejada permite comparar cada grupo com a taxa geral da base.'
+
+
 # Decisao do grupo sobre o tratamento (proposta do notebook eda_outliers.ipynb, para revisao)
 TEXTO_DECISAO = """
 1. **Manter todos os valores.** Os extremos sao plausiveis (clientes de renda alta, grandes gastadores, clientes
@@ -206,7 +216,7 @@ def analisar_dispersao() -> dict:
     fig = px.scatter(
         df_sit, x="Total_Trans_Ct", y="Total_Trans_Amt", color="Situacao", opacity=0.35,
         category_orders={"Situacao": ORDEM_SITUACAO}, color_discrete_map=CORES_SITUACAO,
-        title="A maioria dos cancelamentos esta em poucas transacoes e valores baixos",
+        title=TITULO_VIZ4,
         labels={"Total_Trans_Ct": "Quantidade de transacoes em 12 meses",
                 "Total_Trans_Amt": "Valor total transacionado em 12 meses (US$)", "Situacao": "Situacao do cliente"},
     )
@@ -280,38 +290,10 @@ def secao_dispersao() -> None:
     st.caption("Cada ponto e um cliente; a transparencia ajuda a ler onde os pontos se sobrepoem. "
                "As linhas tracejadas marcam 60 transacoes e US$ 3.000.")
 
-    if d["cancelaram_muito_alto"] == 0:
-        muito_alto = f"ninguem cancela ({d['cancelaram_muito_alto']} de {inteiro_br(d['n_muito_alto'])} clientes)"
-    else:
-        muito_alto = f"so {d['cancelaram_muito_alto']} de {inteiro_br(d['n_muito_alto'])} clientes cancelam"
-    limite_baixo = inteiro_br(CORTE_VALOR_BAIXO)
     with st.expander("Nota analitica", icon=":material/edit_note:"):
-        st.markdown(
-            "**O que esta sendo mostrado:** cada ponto e um cliente. O eixo x e a quantidade de transacoes em 12 meses "
-            "(`Total_Trans_Ct`) e o eixo y o valor total transacionado no periodo (`Total_Trans_Amt`, em US$). A cor "
-            "indica se o cliente ficou ou cancelou o cartao."
-        )
-        st.markdown(
-            f"**Qual insight pode ser extraido:** as duas variaveis andam juntas (correlacao de {dec_br(d['correlacao'], 2)}): "
-            "quem faz mais transacoes tambem movimenta valores maiores. A maioria dos cancelamentos fica no canto "
-            f"inferior esquerdo: a mediana de quem cancelou e de {med.loc['Cancelou', 'Total_Trans_Ct']:.0f} transacoes "
-            f"e US$ {med.loc['Cancelou', 'Total_Trans_Amt']:,.0f}, contra {med.loc['Ficou', 'Total_Trans_Ct']:.0f} "
-            f"transacoes e US$ {med.loc['Ficou', 'Total_Trans_Amt']:,.0f} de quem ficou. Na regiao com menos de "
-            f"{CORTE_TRANSACOES} transacoes e menos de US$ {limite_baixo} (que e {dec_br(d['canto_na_base'])}% da base), "
-            f"{dec_br(d['taxa_canto'])}% dos clientes cancelaram (a taxa da base e de {dec_br(d['taxa_base'])}%), e essa "
-            f"regiao reune {dec_br(d['fatia_canto'])}% de todos os cancelamentos. Ela nao e o unico grupo: entre US$ 6.000 "
-            f"e US$ 11.000 a taxa tambem e alta ({dec_br(d['taxa_faixa_media'])}%, o que e "
-            f"{dec_br(d['fatia_faixa_media'])}% dos cancelamentos); na faixa intermediaria de US$ 3.000 a US$ 6.000 ela e "
-            f"de apenas {dec_br(d['taxa_intermediaria'])}%, e acima de US$ 11.000 {muito_alto}. Os cortes "
-            "(60 transacoes, US$ 3.000, US$ 6.000 e US$ 11.000) foram escolhidos olhando o grafico, apenas para descrever "
-            "o que aparece nele. Isso e uma associacao: o grafico nao prova que usar menos o cartao causa o cancelamento."
-        )
-        st.markdown(
-            "**Por que este tipo de visualizacao:** a dispersao mostra a relacao entre duas variaveis quantitativas e "
-            "deixa ver onde cada grupo se concentra no plano, o que o boxplot e o violino (que mostram uma variavel por "
-            "vez) nao mostram. A transparencia dos pontos evita que a sobreposicao esconda a densidade."
-        )
-
+        st.markdown(f"**O que esta sendo mostrado:** {NOTA_VIZ4_O_QUE_MOSTRA}")
+        st.markdown(f"**Qual insight pode ser extraido:** {NOTA_VIZ4_INSIGHT}")
+        st.markdown(f"**Por que este tipo de visualizacao:** {NOTA_VIZ4_POR_QUE}")
 
 def secao_produtos() -> None:
     d = analisar_produtos()
@@ -322,26 +304,9 @@ def secao_produtos() -> None:
         st.metric("Diferenca entre os dois grupos", f"{d['razao']:.1f}x", border=True)
     st.plotly_chart(d["fig"], key="out_expl2")
     with st.expander("Nota analitica", icon=":material/edit_note:"):
-        st.markdown(
-            "**O que esta sendo mostrado:** a taxa de cancelamento do cartao (eixo y) de acordo com a quantidade de produtos "
-            "do banco que o cliente tem (`Total_Relationship_Count`, eixo x). Cada barra traz o numero de clientes (n) e a "
-            "linha tracejada marca a taxa da base toda. Em vermelho estao os clientes com 1 ou 2 produtos."
-        )
-        st.markdown(
-            f"**Qual insight pode ser extraido:** clientes com 1 ou 2 produtos cancelam {dec_br(d['taxa_poucos'])}% das "
-            f"vezes, contra {dec_br(d['taxa_muitos'])}% dos que tem 4 a 6 produtos: o primeiro grupo tem "
-            f"{dec_br(d['razao'])} vezes a taxa de cancelamento do segundo. Com 3 produtos a taxa e intermediaria "
-            f"({dec_br(d['taxa_tres'])}%), perto da media da base, por isso esse grupo fica fora da comparacao. Os clientes "
-            f"com 1 ou 2 produtos sao {dec_br(d['poucos_na_base'])}% da base, mas {dec_br(d['poucos_nos_cancelados'])}% de "
-            "quem cancelou. Aumentar o vinculo do cliente com o banco pode ser um caminho para reter, mas o grafico mostra "
-            "uma associacao, nao uma causa: clientes mais engajados podem contratar mais produtos justamente por isso."
-        )
-        st.markdown(
-            "**Por que este tipo de visualizacao:** como e uma visualizacao explanatoria, ela precisa levar a uma "
-            "conclusao. Barras comparam taxas entre categorias discretas de forma direta; o titulo ja enuncia a conclusao, "
-            "a cor destaca o grupo de interesse, e a linha da taxa da base da a referencia para ler cada barra."
-        )
-
+        st.markdown(f"**O que esta sendo mostrado:** {NOTA_EXPL2_O_QUE_MOSTRA}")
+        st.markdown(f"**Qual insight pode ser extraido:** {NOTA_EXPL2_INSIGHT}")
+        st.markdown(f"**Por que este tipo de visualizacao:** {NOTA_EXPL2_POR_QUE}")
 
 with st.container(border=True):
     secao_dispersao()
