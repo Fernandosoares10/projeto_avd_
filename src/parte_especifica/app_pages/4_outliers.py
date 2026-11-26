@@ -15,14 +15,14 @@ from dados import (
 from outliers import ESTRATEGIAS, K_IQR, mascara_outliers, resumo_outliers, taxa_alvo_por_grupo, tratar
 from taxas import taxa_do_recorte, taxa_por_categoria
 
-# Notas analiticas e titulo escritos pelo grupo (Fernando), iguais aos notebooks viz_exploratoria_4 e viz_explanatoria_2
+# Notas analiticas e titulo escritos pelo grupo, iguais aos notebooks viz_exploratoria_4 e viz_explanatoria_2
 TITULO_VIZ4 = 'Clientes com Menor Movimentação Apresentam Maior Taxa de Cancelamento'
 NOTA_VIZ4_O_QUE_MOSTRA = 'O gráfico mostra a relação entre a quantidade de transações e o valor total que cada cliente movimentou em 12 meses. Cada ponto representa um cliente, e as cores diferenciam quem continuou no banco de quem cancelou.'
 NOTA_VIZ4_INSIGHT = 'Existe uma relação positiva entre a quantidade de transações e o valor movimentado, com correlação de 0,81. Além disso, clientes que cancelaram costumam ter menos transações e movimentar menos dinheiro. O principal alerta está na região abaixo de 60 transações e US$ 3.000: ela concentra 34,9% dos clientes, mas reúne 77,9% de todos os cancelamentos. Isso indica que clientes com pouca movimentação merecem atenção do banco.'
-NOTA_VIZ4_POR_QUE = 'Porque esse tipo de gráfico permite observar a relação entre duas variáveis numéricas ao mesmo tempo. Também facilita identificar concentrações de clientes, padrões, diferenças entre quem ficou e quem cancelou e possíveis grupos de maior risco. As linhas tracejadas ajudam a separar as regiões para a análise.'
+NOTA_VIZ4_POR_QUE = 'O gráfico de dispersão foi escolhido porque permite analisar duas variáveis numéricas ao mesmo tempo, facilitando a identificação de padrões, concentrações de clientes e diferenças entre quem permaneceu no banco e quem cancelou.'
 NOTA_EXPL2_O_QUE_MOSTRA = 'O gráfico mostra a taxa de cancelamento dos clientes de acordo com a quantidade de produtos que possuem no banco, de 1 a 6. Também apresenta a quantidade de clientes em cada grupo e uma linha de referência com a taxa geral de cancelamento da base, que é de 16,1%.'
 NOTA_EXPL2_INSIGHT = 'Clientes que possuem apenas 1 ou 2 produtos apresentam uma taxa de cancelamento maior, de 26,9%. Já entre os clientes que possuem de 4 a 6 produtos, a taxa cai para 11,4%. Ou seja, clientes com menos produtos cancelam aproximadamente 2,4 vezes mais. Outro ponto importante é que os clientes com 1 ou 2 produtos representam apenas 21,3% da base, mas correspondem a 35,6% de todos os cancelamentos. Isso mostra que ter poucos produtos contratados pode ser um sinal de maior risco de cancelamento.'
-NOTA_EXPL2_POR_QUE = 'O gráfico de barras foi escolhido porque facilita comparar valores entre categorias diferentes, nesse caso, a quantidade de produtos contratados. Assim, fica fácil perceber quais grupos possuem as maiores e menores taxas de cancelamento. O vermelho foi usado para destacar os clientes com 1 ou 2 produtos, pois são os grupos que apresentam maior taxa de cancelamento e merecem mais atenção. A linha tracejada permite comparar cada grupo com a taxa geral da base.'
+NOTA_EXPL2_POR_QUE = 'Escolhemos o gráfico de barras porque ele facilita a comparação da taxa de cancelamento entre diferentes quantidades de produtos. O vermelho destaca os grupos com maior taxa de cancelamento, enquanto a linha da média permite comparar cada grupo com a taxa geral da base.'
 
 
 # Textos do grupo (Fernando), iguais ao notebook eda_outliers.ipynb
@@ -191,7 +191,7 @@ def dec_br(valor: float, casas: int = 1) -> str:
     return f"{valor:.{casas}f}".replace(".", ",")
 
 
-# Cortes da visualizacao exploratoria 4: definidos pelo grupo (Fernando) para separar menor e maior movimentacao
+# Cortes da visualizacao exploratoria 4: definidos pelo grupo para separar menor e maior movimentacao
 CORTE_TRANSACOES = 60
 CORTE_VALOR_BAIXO = 3000
 FAIXA_VALOR_MEDIO = (6000, 11000)

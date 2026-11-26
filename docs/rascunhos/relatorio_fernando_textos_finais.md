@@ -26,7 +26,11 @@ Utilizamos somente as oito variáveis numéricas porque o K-Means trabalha com c
 
 ## Storytelling
 
-A exploração mostrou que existem diferenças no comportamento dos clientes que permaneceram no banco e daqueles que cancelaram o cartão. Os gráficos foram construídos para destacar essas diferenças de forma visual e facilitar a interpretação pelo público-alvo. Utilizamos o vermelho para chamar atenção para os grupos com maior risco de cancelamento, a linha da média como referência para comparação e títulos que apresentam diretamente a principal mensagem de cada gráfico. Dessa forma, o dashboard não mostra apenas números, mas também ajuda o usuário a entender o que esses resultados significam.
+Durante a exploração dos dados, percebemos que alguns comportamentos dos clientes estão bastante relacionados ao cancelamento do cartão. Um dos pontos que mais chamou atenção foi que clientes com menor quantidade de transações e uma queda forte na utilização durante o quarto trimestre apresentam taxas de cancelamento elevadas. Em algumas faixas, essa taxa chega a 56,9%, enquanto clientes com 60 ou mais transações apresentam taxas abaixo de 6,5%.
+
+Também observamos que clientes com apenas 1 ou 2 produtos contratados possuem uma taxa de cancelamento de 26,9%, enquanto aqueles com 4 a 6 produtos apresentam 11,4%. Isso mostra que clientes com poucos produtos representam uma parcela importante dos cancelamentos.
+
+Essas informações são importantes para as equipes de marketing e relacionamento porque ajudam a identificar clientes que podem precisar de mais atenção e de ações para incentivar a utilização dos serviços do banco. Nos gráficos, destacamos os grupos de maior risco utilizando a cor vermelha, linhas de referência para facilitar as comparações e títulos que apresentam diretamente a principal mensagem de cada visualização.
 
 ## Resposta à pergunta de pesquisa
 
