@@ -109,7 +109,7 @@ def main() -> None:
         aspect="auto",
     )
     fig_corr.update_layout(height=600, margin=dict(l=20, r=20, t=30, b=20))
-    st.plotly_chart(fig_corr, use_container_width=True)
+    st.plotly_chart(fig_corr, width="stretch")
     st.caption(
         "Destaque para a colinearidade quase perfeita entre `Credit_Limit` e `Avg_Open_To_Buy` "
         "e a forte relação entre `Total_Trans_Amt` e `Total_Trans_Ct`."
@@ -138,7 +138,7 @@ def main() -> None:
     )
     fig_bar.update_traces(textposition="outside")
     fig_bar.update_layout(height=480, yaxis_title="", xaxis_title="Correlação de Pearson com cancelou")
-    st.plotly_chart(fig_bar, use_container_width=True)
+    st.plotly_chart(fig_bar, width="stretch")
 
     st.divider()
 
@@ -189,7 +189,7 @@ def main() -> None:
         xaxis_title="Meses de inatividade (Months_Inactive_12_mon)",
         yaxis_title="Contatos com o banco (Contacts_Count_12_mon)",
     )
-    st.plotly_chart(fig_heat, use_container_width=True)
+    st.plotly_chart(fig_heat, width="stretch")
 
     st.divider()
 
@@ -234,7 +234,7 @@ def main() -> None:
     )
     fig_exp.update_traces(textposition="outside")
     fig_exp.update_layout(height=480, yaxis_range=[0, min(resumo_exp["taxa"].max() + 18, 108)])
-    st.plotly_chart(fig_exp, use_container_width=True)
+    st.plotly_chart(fig_exp, width="stretch")
 
     st.divider()
 
@@ -336,7 +336,7 @@ def main() -> None:
                 title=f"Distribuição (Boxplot): {var_comp}",
             )
             fig_box_comp.update_layout(showlegend=False, height=400, xaxis_title="")
-            st.plotly_chart(fig_box_comp, use_container_width=True)
+            st.plotly_chart(fig_box_comp, width="stretch")
 
         with g2:
             fig_hist_comp = px.histogram(
@@ -351,7 +351,7 @@ def main() -> None:
                 labels={"count": "% do grupo"},
             )
             fig_hist_comp.update_layout(height=400, yaxis_title="% de clientes no perfil")
-            st.plotly_chart(fig_hist_comp, use_container_width=True)
+            st.plotly_chart(fig_hist_comp, width="stretch")
 
         # Tabela resumo lado a lado das principais métricas comportamentais
         metricas_tabela = [
@@ -375,7 +375,7 @@ def main() -> None:
         tabela_comp["Diferença (Média B - A)"] = (
             tabela_comp[f"Média — {perfil_b}"] - tabela_comp[f"Média — {perfil_a}"]
         )
-        st.dataframe(tabela_comp.round(2), use_container_width=True)
+        st.dataframe(tabela_comp.round(2), width="stretch")
 
     st.divider()
 
@@ -455,7 +455,7 @@ def main() -> None:
         )
 
     fig_scatter.update_layout(height=500)
-    st.plotly_chart(fig_scatter, use_container_width=True)
+    st.plotly_chart(fig_scatter, width="stretch")
 
     # Exportação de dados em CSV
     st.markdown("#### Exportação de dados")
@@ -467,7 +467,7 @@ def main() -> None:
             data=csv_filtrado,
             file_name="bankchurners_relacoes_filtrado.csv",
             mime="text/csv",
-            use_container_width=True,
+            width="stretch",
         )
     with d2:
         if tabela_comp is not None:
@@ -477,7 +477,7 @@ def main() -> None:
                 data=csv_comp,
                 file_name="bankchurners_comparacao_perfis.csv",
                 mime="text/csv",
-                use_container_width=True,
+                width="stretch",
             )
 
 
