@@ -52,9 +52,10 @@ Ordem sugerida dos notebooks:
 | Ordem | Notebook | Conteúdo | Saídas em `out/parte_comum/` |
 |---|---|---|---|
 | 1 | `eda_comum.ipynb` | EDA estrutural, distribucional e outliers | gráficos `eda_*.png` e `obesity_tratado.csv` |
-| 2 | `kmeans_passada2.ipynb` | Passada 2 (k fixo = 7): padronização, K-Means, visualização (PCA), mapeamento cluster → classe, matriz de confusão e métricas | `passada2_clusters_pca.png`, `passada2_matriz_confusao.png` |
-| 3 | `kmeans_passada1.ipynb` | Passada 1 (k de 2 a 10): padronização, K-Means, Método do Cotovelo, visualização (PCA), mapeamento cluster → classe, matriz de confusão e métricas. A lógica está em `src/parte_comum/` e é testada em `tests/` | `passada1_cotovelo.png`, `passada1_clusters_pca.png`, `passada1_matriz_confusao.csv` |
-| | _(a preencher: EDA relacional)_ | | |
+| 2 | `kmeans_passada1.ipynb` | Passada 1 (k de 2 a 10, k escolhido pelo Método do Cotovelo = 5): padronização, K-Means, Método do Cotovelo, visualização (PCA), mapeamento cluster → classe, matriz de confusão e métricas. A lógica está em `src/parte_comum/` e é testada em `tests/` | `passada1_cotovelo.png`, `passada1_clusters_pca.png`, `passada1_matriz_confusao.csv` |
+| 3 | `kmeans_passada2.ipynb` | Passada 2 (k fixo = 7): padronização, K-Means, visualização (PCA), mapeamento cluster → classe, matriz de confusão e métricas | `passada2_clusters_pca.png`, `passada2_matriz_confusao.png` |
+| 4 | `eda_relacional_comum.ipynb` | EDA relacional: relações entre as variáveis e com a classe `NObeyesdad` | gráficos `eda_relacional_*.png` |
+| 5 | `discussao_granularidade_classes.ipynb` | Apoio à discussão sobre a granularidade das classes | `eda_relacional_granularidade_classes.png` |
 
 ### Parte Específica (BankChurners)
 
@@ -71,7 +72,10 @@ dashboard, então deve ser executado antes deles.
 | 6 | `eda_outliers.ipynb` | Outliers (critérios IQR e z-score), plausibilidade, relação com o cancelamento e comparação das estratégias de tratamento. A lógica está em `outliers.py` e é testada em `tests/parte_especifica/` | `eda_outliers_boxplots.png`, `eda_outliers_cancelamento.png`, `eda_outliers_tratamento.png` |
 | 7 | `viz_exploratoria_4.ipynb` | Visualização exploratória 4 (dispersão de `Total_Trans_Ct` × `Total_Trans_Amt`, colorida por situação do cliente) e nota analítica | `viz_exploratoria_4_dispersao_trans_ct_amt.png` |
 | 8 | `viz_explanatoria_2.ipynb` | Visualização explanatória 2 (taxa de cancelamento por número de produtos, `Total_Relationship_Count`) e nota analítica | `viz_explanatoria_2_barras_produtos.png` |
-| | _(a preencher: EDA relacional, visualização exploratória 3, explanatória 1)_ | | |
+| 9 | `eda_relacional.ipynb` | EDA relacional e multivariada (variáveis entre si e com o cancelamento) | gráficos `eda_relacional_*.png` |
+| 10 | `eda_variaveis_derivadas.ipynb` | Verificação das variáveis derivadas `Avg_Open_To_Buy` e `Avg_Utilization_Ratio` | `eda_variaveis_derivadas.png` |
+| 11 | `viz_exploratoria_3.ipynb` | Visualização exploratória 3 (heatmap de contatos × meses de inatividade com a taxa de cancelamento) e nota analítica | `viz_exploratoria_3_heatmap_contatos_inatividade.png` |
+| 12 | `viz_explanatoria_1.ipynb` | Visualização explanatória 1 (taxa de cancelamento por faixa de transações e queda no 4º trimestre) e nota analítica | `viz_explanatoria_1_churn_transacoes_queda.png` |
 
 ### Dashboard (Streamlit)
 
@@ -184,4 +188,6 @@ marcados no próprio código com o comentário:
 
 A declaração completa, assinada por todos os integrantes, está em `docs/DECLARACAO_IA.pdf`.
 
-_(a preencher pelo grupo: ferramentas usadas e para quê)_
+Ferramenta usada: **Claude Code** (Anthropic), para escrever código (notebooks, funções, testes e páginas do dashboard),
+tirar dúvidas conceituais e revisar ortografia. As análises, interpretações e notas analíticas foram escritas pelos
+integrantes. O detalhamento por integrante está na declaração.
