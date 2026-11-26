@@ -3,7 +3,24 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from parte_comum.avaliacao import avaliar
+from parte_comum.avaliacao import avaliar, metricas_por_classe
+
+
+def test_metricas_por_classe_caso_calculado_a_mao():
+    y_true = ["a", "a", "b", "b", "c"]
+    y_pred = ["a", "b", "b", "b", "b"]
+
+    t = metricas_por_classe(y_true, y_pred, classes=["a", "b", "c"])
+
+    assert list(t.index) == ["a", "b", "c"]
+    assert t.loc["a", "precisao"] == pytest.approx(1.0)
+    assert t.loc["a", "recall"] == pytest.approx(0.5)
+    assert t.loc["b", "precisao"] == pytest.approx(2 / 4)
+    assert t.loc["b", "recall"] == pytest.approx(1.0)
+    # classe que nunca foi prevista: precisão 0 (sem divisão por zero), recall 0
+    assert t.loc["c", "precisao"] == 0.0
+    assert t.loc["c", "recall"] == 0.0
+    assert list(t["n_real"]) == [2, 2, 1]
 
 
 def test_avaliar_predicao_perfeita_da_um_em_tudo():

@@ -2,7 +2,7 @@
 
 ## Granularidade das classes no dataset Obesity (Parte Comum)
 
-Na Parte Comum, além da análise das relações entre as variáveis numéricas, investigamos a granularidade das sete classes de `NObeyesdad` (`Insufficient_Weight`, `Normal_Weight`, `Overweight_Level_I`, `Overweight_Level_II`, `Obesity_Type_I`, `Obesity_Type_II` e `Obesity_Type_III`), com código em `src/parte_comum/discussao_granularidade_classes.ipynb` e figura salva em `out/parte_comum/eda_relacional_granularidade_classes.png`.
+Na Parte Comum, além da análise das relações entre as variáveis numéricas, investigamos a granularidade das sete classes de `NObeyesdad` (`Insufficient_Weight`, `Normal_Weight`, `Overweight_Level_I`, `Overweight_Level_II`, `Obesity_Type_I`, `Obesity_Type_II` e `Obesity_Type_III`), com código em `notebooks/parte_comum/discussao_granularidade_classes.ipynb` e figura salva em `out/parte_comum/eda_relacional_granularidade_classes.png`.
 
 A análise de proximidade entre centróides e dispersão interna mostra que as sete categorias não formam blocos isolados no espaço das oito variáveis numéricas padronizadas. Enquanto os extremos (`Insufficient_Weight` e `Obesity_Type_III`) se afastam com mais clareza, as faixas intermediárias — sobretudo `Overweight_Level_I`, `Overweight_Level_II` e `Obesity_Type_I` — apresentam forte sobreposição. Isso dialoga diretamente com o desempenho do K-Means (silhueta baixa e acurácia de 38,8% com k = 7): como as classes originais refletem faixas contínuas de IMC, fatiar esse contínuo em sete níveis muito próximos dificulta a separação não supervisionada quando variáveis de hábitos alimentares e atividade física entram com o mesmo peso de altura e peso.
 

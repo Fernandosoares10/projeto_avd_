@@ -148,18 +148,18 @@ Divisão das tarefas combinada pelo grupo. **R** = responsável pela entrega; **
 | Comum | Outliers do Obesity | | R | | |
 | Comum | K-Means Passada 1: k de 2 a 10, Cotovelo, mapeamento, matriz e métricas | | | | R |
 | Comum | K-Means Passada 2: k fixo, mapeamento, matriz e métricas (`kmeans_passada2.ipynb`) | R | | | |
-| Comum | Discussão sobre a granularidade das classes | | | R | |
+| Comum | Discussão sobre a granularidade das classes (texto da discussão crítica: Fernando; análise de centróides: Pedro) | R | | R | |
 | Específica | EDA estrutural (`eda_estrutural.ipynb`) | R | | | |
 | Específica | Valores Unknown: mecanismo de ausência e tratamento (`eda_unknown.ipynb`) | R | | | |
 | Específica | EDA distribucional (`eda_distribucional.ipynb`) | | R | | |
 | Específica | EDA relacional e multivariada; variáveis derivadas | | | R | |
-| Específica | Outliers do BankChurners | | | | R |
+| Específica | Outliers do BankChurners (código: Adrian; interpretação e decisão: Fernando) | R | | | R |
 | Específica | Visualização exploratória 1 e nota analítica | R | | | |
 | Específica | Visualização exploratória 2 e nota analítica (`viz_exploratoria_2.ipynb`) | | R | | |
 | Específica | Visualização exploratória 3 e nota analítica | | | R | |
-| Específica | Visualização exploratória 4 e nota analítica | | | | R |
+| Específica | Visualização exploratória 4 (gráfico: Adrian) e nota analítica (Fernando) | R | | | R |
 | Específica | Visualização explanatória 1 (responde à pergunta de pesquisa) e nota | | | R | |
-| Específica | Visualização explanatória 2 e nota | | | | R |
+| Específica | Visualização explanatória 2 (gráfico: Adrian) e nota (Fernando) | R | | | R |
 | Dashboard | Página inicial e navegação (`dashboard.py`, `dados.py`, `inicio.py`) | | R | | |
 | Dashboard | Página Qualidade dos dados | R | | | |
 | Dashboard | Página Distribuições, com filtros e exportação | | R | | |
@@ -169,7 +169,7 @@ Divisão das tarefas combinada pelo grupo. **R** = responsável pela entrega; **
 | Entrega | Relatório: Passada 2 e EDA estrutural | R | | | |
 | Entrega | Relatório: EDA da Parte Comum e distribuições | | R | | |
 | Entrega | Relatório: relações e granularidade das classes | | | R | |
-| Entrega | Relatório: Passada 1 e outliers | | | | R |
+| Entrega | Relatório: Passada 1, discussão crítica e outliers (texto: Fernando; números e figuras: Adrian) | R | | | A |
 | Entrega | Montagem do `relatorio.pdf` e README final | R | A | A | A |
 | Entrega | Revisão de ortografia e clareza do relatório | A | R | A | A |
 | Entrega | Matriz de contribuição | | R | | |

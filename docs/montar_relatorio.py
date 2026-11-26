@@ -16,9 +16,22 @@ import subprocess
 import zipfile
 from pathlib import Path
 
+import sys
+
 import mistune
+import pandas as pd
 
 RAIZ = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(RAIZ / "src"))
+
+from parte_comum.avaliacao import avaliar, metricas_por_classe  # noqa: E402
+from parte_comum.clustering import ajustar_kmeans, aplicar_mapa, mapear_clusters  # noqa: E402
+from parte_comum.preprocessing import ALVO, NUMERICAS, carregar_obesity, padronizar  # noqa: E402
+
+ORDEM_CLASSES = [
+    "Insufficient_Weight", "Normal_Weight", "Overweight_Level_I", "Overweight_Level_II",
+    "Obesity_Type_I", "Obesity_Type_II", "Obesity_Type_III",
+]
 RASCUNHOS = RAIZ / "docs" / "rascunhos"
 OUT_COMUM = RAIZ / "out" / "parte_comum"
 OUT_ESP = RAIZ / "out" / "parte_especifica"
@@ -105,6 +118,38 @@ def figura(caminho_ou_b64: str | Path, legenda: str) -> str:
             f"<figcaption>Figura {contador_fig}: {html.escape(legenda)}</figcaption></figure>")
 
 
+# [IA] Claude Code – tabelas numéricas das passadas (matriz de confusão e métricas por classe), sem interpretação
+contador_tab = 0
+
+
+def tabela(df, legenda: str) -> str:
+    """DataFrame -> tabela HTML numerada, com legenda acima."""
+    global contador_tab
+    contador_tab += 1
+    corpo = df.to_html(border=0, escape=True)
+    return (f'<div class="tabela"><p class="legenda-tab">Tabela {contador_tab}: {html.escape(legenda)}</p>'
+            f"{corpo}</div>")
+
+
+def resultado_passada(k: int) -> dict:
+    """Roda o pipeline de src/parte_comum (o mesmo dos notebooks) para um k e devolve as tabelas."""
+    df = carregar_obesity(RAIZ / "data" / "parte_comum" / "obesity.csv")
+    labels = ajustar_kmeans(padronizar(df, NUMERICAS), k)
+    mapa = mapear_clusters(labels, df[ALVO])
+    previstas = aplicar_mapa(labels, mapa)
+    matriz = pd.crosstab(pd.Series(df[ALVO].values, name="Classe real"),
+                         pd.Series(labels, name="Cluster")).reindex(ORDEM_CLASSES)
+    matriz.columns = [f"Cluster {c} → {mapa[c]}" for c in matriz.columns]
+    metricas = metricas_por_classe(df[ALVO], previstas, ORDEM_CLASSES)
+    metricas = metricas.assign(
+        precisao=lambda t: (t["precisao"] * 100).map(lambda v: f"{v:.1f}%".replace(".", ",")),
+        recall=lambda t: (t["recall"] * 100).map(lambda v: f"{v:.1f}%".replace(".", ",")),
+    ).rename(columns={"precisao": "Precisão", "recall": "Recall", "n_real": "Registros reais"})
+    metricas.index.name = "Classe"
+    acuracia = avaliar(df[ALVO], previstas)["acuracia"] * 100
+    return {"matriz": matriz, "metricas": metricas, "acuracia": f"{acuracia:.1f}".replace(".", ",")}
+
+
 def pendente(o_que: str) -> str:
     return f'<p class="pendente"><b>PENDENTE:</b> {html.escape(o_que)}</p>'
 
@@ -189,6 +234,10 @@ def montar() -> str:
     h.append(bloco_md(adrian.get("Passada 1: escolha do k e resultados", "")))
     h.append(figura(OUT_COMUM / "passada1_cotovelo.png", "Método do Cotovelo (inércia para k de 2 a 10)."))
     h.append(figura(OUT_COMUM / "passada1_clusters_pca.png", "Passada 1: clusters projetados em 2 componentes principais."))
+    p1 = resultado_passada(5)
+    h.append(tabela(p1["matriz"], "Passada 1: matriz de confusão (quantidade de pessoas de cada classe real em cada "
+                                  "cluster; o cabeçalho mostra a classe majoritária atribuída a cada cluster)."))
+    h.append(tabela(p1["metricas"], f"Passada 1: precisão e recall por classe (acurácia = {p1['acuracia']}%)."))
 
     h.append("<h2>4. K-Means: Passada 2 (k fixo = 7)</h2>")
     h.append(extra("Passada 2: escolha das variáveis e matriz de confusão",
@@ -197,6 +246,8 @@ def montar() -> str:
     h.append(md(f_pca))
     h.append(figura(OUT_COMUM / "passada2_clusters_pca.png", "Passada 2: clusters do K-Means e classes reais na mesma projeção PCA."))
     h.append(figura(OUT_COMUM / "passada2_matriz_confusao.png", "Passada 2: matriz de confusão em % por linha (cada classe real soma 100%), com a quantidade de pessoas entre parênteses."))
+    p2 = resultado_passada(7)
+    h.append(tabela(p2["metricas"], f"Passada 2: precisão e recall por classe (acurácia = {p2['acuracia']}%)."))
 
     h.append("<h2>5. Discussão crítica</h2>")
     h.append("<h3>Passada 1 x Passada 2</h3>")
@@ -276,6 +327,9 @@ figure img { max-width: 100%; max-height: 120mm; }
 figcaption { font-size: 9pt; color: #444; margin-top: 4px; }
 code { font-family: Consolas, monospace; font-size: 9.5pt; }
 table { border-collapse: collapse; } th, td { border: 1px solid #aaa; padding: 3px 6px; }
+.tabela { margin: 10px 0; page-break-inside: avoid; font-size: 8.5pt; }
+.tabela table { margin: 0 auto; } .tabela td { text-align: right; }
+.legenda-tab { font-size: 9pt; color: #444; text-align: center; margin-bottom: 4px; }
 .pendente { background: #fff2a8; padding: 6px; border-left: 4px solid #d4a000; }
 """
 
