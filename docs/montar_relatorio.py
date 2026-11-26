@@ -16,7 +16,6 @@ import subprocess
 import zipfile
 from pathlib import Path
 
-import mistune
 
 RAIZ = Path(__file__).resolve().parents[1]
 RASCUNHOS = RAIZ / "docs" / "rascunhos"
@@ -26,7 +25,27 @@ SAIDA_HTML = RAIZ / "docs" / "rascunhos" / "relatorio_montado.html"
 SAIDA_PDF = RAIZ / "relatorio.pdf"
 EDGE = Path(r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe")
 
-md = mistune.create_markdown(plugins=["table"])
+def md(texto: str) -> str:
+    """Markdown simples -> HTML (paragrafos, **negrito**, `codigo`, listas numeradas e com hifen), so com a biblioteca padrao."""
+    def inline(t: str) -> str:
+        t = html.escape(t)
+        t = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", t)
+        t = re.sub(r"`(.+?)`", r"<code>\1</code>", t)
+        return t
+    blocos = []
+    for bloco in re.split(r"\n\s*\n", texto.strip()):
+        linhas = [l for l in bloco.splitlines() if l.strip()]
+        if not linhas:
+            continue
+        if all(re.match(r"^\s*(\d+\.|-)\s+", l) for l in linhas):
+            tag = "ol" if re.match(r"^\s*\d+\.", linhas[0]) else "ul"
+            itens = "".join(f"<li>{inline(re.sub(r'^\s*(\d+\.|-)\s+', '', l))}</li>" for l in linhas)
+            blocos.append(f"<{tag}>{itens}</{tag}>")
+        else:
+            blocos.append(f"<p>{inline(' '.join(l.strip() for l in linhas))}</p>")
+    return "\n".join(blocos)
+
+
 contador_fig = 0
 
 
@@ -128,7 +147,7 @@ def luis_html(itens: list[tuple[str, str]], h1_incluir: set[str], com_titulo: bo
             partes.append(f"<h4>{html.escape(conteudo)}</h4>")
         elif tipo == "p":
             # rotulos em negrito do Word chegam como "**Rotulo: texto" sem o fechamento
-            partes.append(md(re.sub(r"^\*\*([^*:]+:)\s*", r"**** ", conteudo)))
+            partes.append(md(re.sub(r"^\*\*([^*:]+:)\s*", r"**\1** ", conteudo)))
         elif tipo == "img":
             img_pendente = conteudo
         elif tipo == "legenda" and img_pendente:
