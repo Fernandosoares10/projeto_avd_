@@ -2,7 +2,7 @@
 import pandas as pd
 import streamlit as st
 
-from dados import CLIENTE_CANCELOU, COLUNA_ALVO, DICIONARIO_BANK, carregar_bank
+from dados import CLIENTE_CANCELOU, COLUNA_ALVO, DICIONARIO_BANK, RAIZ_PROJETO, carregar_bank
 
 # Textos definidos pelo grupo (a IA nao escreve pergunta de pesquisa nem publico-alvo)
 PERGUNTA_DE_PESQUISA = 'Quais características do comportamento dos clientes estão mais associadas ao cancelamento do cartão de crédito e podem ajudar o banco a identificar clientes com maior risco de cancelamento?'
@@ -33,6 +33,24 @@ with col_publico:
     with st.container(border=True, height="stretch"):
         st.subheader(":material/groups: Publico-alvo", anchor=False)
         st.markdown(PUBLICO_ALVO)
+
+# [IA] Claude Code – exportacao do relatorio completo (relatorio.pdf) direto pelo dashboard
+CAMINHO_RELATORIO = RAIZ_PROJETO / "relatorio.pdf"
+
+
+@st.cache_data
+def bytes_relatorio() -> bytes:
+    return CAMINHO_RELATORIO.read_bytes()
+
+
+with st.container(border=True):
+    st.subheader(":material/description: Relatorio do projeto", anchor=False)
+    if CAMINHO_RELATORIO.exists():
+        st.caption("Relatorio completo das duas partes (Obesity e BankChurners), com todas as visualizacoes e notas analiticas.")
+        st.download_button(":material/picture_as_pdf: Baixar relatorio completo (PDF)", data=bytes_relatorio(),
+                           file_name="relatorio_projeto_avd.pdf", mime="application/pdf", key="inicio_relatorio")
+    else:
+        st.info("O relatorio.pdf ainda nao foi gerado (python docs/montar_relatorio.py).")
 
 with st.container(border=True):
     st.subheader(":material/map: Como navegar", anchor=False)

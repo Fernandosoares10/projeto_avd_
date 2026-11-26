@@ -2,6 +2,7 @@
 import sys
 
 import pandas as pd
+import plotly.graph_objects as go
 import streamlit as st
 
 from dados import RAIZ_PROJETO, carregar_obesity
@@ -111,3 +112,76 @@ with st.container(border=True):
     st.dataframe(resultado["matriz_confusao"], alt="Matriz de confusao do K-Means contra a classe real")
     if k == K_PADRAO:
         st.caption("Com k = 7 o resultado e o mesmo da Passada 2 (notebook kmeans_passada2.ipynb): mesmo metodo, mesma semente.")
+
+
+# ---------------------------------------------------------------- transicao animada entre as passadas
+# [IA] Claude Code – animacao da transicao Passada 1 (k do cotovelo) -> Passada 2 (k = 7) na mesma projecao PCA
+ORDEM_CLASSES = [
+    "Insufficient_Weight", "Normal_Weight", "Overweight_Level_I", "Overweight_Level_II",
+    "Obesity_Type_I", "Obesity_Type_II", "Obesity_Type_III",
+]
+CORES_CLASSES = dict(zip(ORDEM_CLASSES, ["#4C72B0", "#55A868", "#CCB974", "#DD8452", "#C44E52", "#8172B3", "#2F2F2F"]))
+
+
+@st.cache_data
+def figura_transicao(k_passada1: int, k_passada2: int) -> go.Figure:
+    """Um unico conjunto de pontos (mesma ordem e posicao); entre os quadros so muda a cor = classe mapeada do grupo."""
+    proj = projetar_2d(variaveis_padronizadas())
+    quadros = []
+    for nome, k_passada in [(f"Passada 1 (k = {k_passada1})", k_passada1), (f"Passada 2 (k = {k_passada2})", k_passada2)]:
+        grupo = agrupar(k_passada)
+        classe_mapeada = aplicar_mapa(grupo["labels"], grupo["mapa"])
+        quadros.append((nome, classe_mapeada))
+
+    def pontos(classe_mapeada) -> go.Scattergl:
+        return go.Scattergl(
+            x=proj["PC1"], y=proj["PC2"], mode="markers", showlegend=False,
+            marker={"color": [CORES_CLASSES[c] for c in classe_mapeada], "size": 5, "opacity": 0.6},
+            customdata=list(zip(classe_mapeada, df[ALVO])),
+            hovertemplate="Grupo mapeado: %{customdata[0]}<br>Classe real: %{customdata[1]}<extra></extra>",
+        )
+
+    # tracos vazios so para a legenda de cores (uma entrada por classe)
+    legenda = [
+        go.Scattergl(x=[None], y=[None], mode="markers", name=c, marker={"color": CORES_CLASSES[c], "size": 9})
+        for c in ORDEM_CLASSES
+    ]
+    fig = go.Figure(
+        data=[pontos(quadros[0][1]), *legenda],
+        frames=[go.Frame(data=[pontos(classe)], traces=[0], name=nome) for nome, classe in quadros],
+    )
+    passos = [
+        {"label": nome, "method": "animate",
+         "args": [[nome], {"mode": "immediate", "frame": {"duration": 900, "redraw": True}, "transition": {"duration": 600}}]}
+        for nome, _ in quadros
+    ]
+    fig.update_layout(
+        title="Transicao entre as passadas: grupo mapeado de cada pessoa (mesma projecao PCA)",
+        xaxis_title="Componente principal 1", yaxis_title="Componente principal 2",
+        legend_title_text="Classe majoritaria do grupo", height=560,
+        updatemenus=[{
+            "type": "buttons", "showactive": False, "x": 0, "y": -0.12, "xanchor": "left", "yanchor": "top",
+            "buttons": [{"label": "▶ Animar", "method": "animate",
+                         "args": [None, {"frame": {"duration": 1500, "redraw": True}, "transition": {"duration": 600},
+                                         "fromcurrent": False, "mode": "immediate"}]}],
+        }],
+        sliders=[{"active": 0, "x": 0.12, "y": -0.08, "len": 0.88, "currentvalue": {"prefix": "Quadro: "}, "steps": passos}],
+    )
+    return fig
+
+
+with st.container(border=True):
+    st.subheader("Transicao animada: Passada 1 -> Passada 2", anchor=False)
+    k_p1 = k_cotovelo(inercias())
+    p1, p2 = agrupar(k_p1), agrupar(K_PADRAO)
+    col_p1, col_p2 = st.columns(2)
+    for coluna, nome, k_passada, dados_passada in [(col_p1, "Passada 1", k_p1, p1), (col_p2, "Passada 2", K_PADRAO, p2)]:
+        with coluna:
+            sem = sorted(set(ORDEM_CLASSES) - set(dados_passada["mapa"].values()))
+            st.metric(f"{nome}: acuracia (k = {k_passada})", f"{dados_passada['resultado']['acuracia'] * 100:.1f}%", border=True)
+            st.caption(f"Classes sem grupo: {', '.join(sem) if sem else 'nenhuma'}")
+    st.plotly_chart(figura_transicao(k_p1, K_PADRAO), key="pc_transicao")
+    st.caption(
+        "Os pontos ficam no mesmo lugar: so muda a cor, que e a classe majoritaria do grupo em que a pessoa caiu. "
+        "Use o botao Animar ou o controle abaixo do grafico. Passe o mouse para ver a classe real de cada pessoa."
+    )

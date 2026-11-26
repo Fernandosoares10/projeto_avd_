@@ -64,3 +64,17 @@ def test_aviso_lista_so_a_classe_sem_grupo_com_k_sete(app):
     aviso = app.warning[0].value
     assert "Overweight_Level_II" in aviso
     assert "Obesity_Type_I" not in aviso and "Normal_Weight" not in aviso
+
+
+# [IA] Claude Code – testes da transicao animada entre as passadas (bonus visual)
+def test_transicao_animada_tem_um_quadro_por_passada(app):
+    fig = next(c for c in app.get("plotly_chart") if "Transicao entre as passadas" in c.proto.spec)
+    import json as _json
+    spec = _json.loads(fig.proto.spec)
+    nomes = [q["name"] for q in spec["frames"]]
+    assert nomes == ["Passada 1 (k = 5)", "Passada 2 (k = 7)"]
+
+
+def test_transicao_mostra_a_acuracia_das_duas_passadas(app):
+    assert _metrica(app, "Passada 1: acuracia (k = 5)") == "33.4%"
+    assert _metrica(app, "Passada 2: acuracia (k = 7)") == ACURACIA_K7
