@@ -26,4 +26,14 @@ Na matriz de correlação da Parte Comum, o par com associação mais forte é p
 Escolhemos o heatmap porque ele cruza duas variáveis discretas de contagem (Contacts_Count_12_mon e Months_Inactive_12_mon, ambas de 0 a 6) e mostra, em uma única grade, a taxa de cancelamento (%) e o tamanho amostral (n) em cada combinação. Gráficos de barras ou de dispersão não permitiriam comparar todas as 49 combinações de forma legível, pois gerariam excesso de barras ou sobreposição total de pontos nos mesmos valores inteiros.
 
 ## Por que este gráfico (explanatória 1)
-As barras agrupadas permitem comparar a taxa de cancelamento entre clientes com queda forte no 4º trimestre (Q4/Q1 < 0,60) e clientes com uso estável ou crescente (Q4/Q1 ≥ 0,60) dentro de cada faixa de volume anual de transações (Total_Trans_Ct) e entre as faixas ao mesmo tempo. A cor vermelha destaca imediatamente a zona de maior risco — concentrada abaixo de 60 transações por ano — para a equipe de gestão e retenção de clientes.
+
+## Dashboard (visão geral)
+
+O dashboard é aberto com `streamlit run src/parte_especifica/dashboard.py`, a partir da raiz do projeto. As páginas seguem a ordem da análise: primeiro a qualidade dos dados, depois as distribuições, as relações entre as variáveis e os outliers, e por fim uma página dedicada à Parte Comum.
+
+- **Início**: apresentação do projeto e botão para baixar o relatório completo em PDF.
+- **Qualidade dos dados**: estrutura do dataset, valores Unknown e tratamento adotado, e a visualização exploratória 1; permite escolher a variável de agrupamento e mostrar ou esconder os valores discrepantes.
+- **Distribuições**: filtros na barra lateral (situação do cliente, gênero, idade, faixa de renda, categoria do cartão, escolaridade e estado civil) que valem para todos os gráficos da página, escolha da variável, opção de separar por situação do cliente, download do recorte em CSV e a visualização exploratória 2.
+- **Relações**: filtro por categoria do cartão, escolha entre correlação de Pearson e de Spearman, comparação lado a lado de dois perfis de clientes, gráfico de dispersão com escolha dos eixos X e Y e da variável de cor, a visualização exploratória 3 e as duas visualizações explanatórias.
+- **Outliers**: ajuste do multiplicador das cercas do IQR, comparação entre os dados originais e tratados, taxa de cancelamento entre outliers e demais clientes, download dos clientes selecionados e a visualização exploratória 4.
+- **Parte Comum**: K-Means do dataset Obesity com escolha do número de grupos e animação da transição entre a Passada 1 (k livre) e a Passada 2 (k fixo).
