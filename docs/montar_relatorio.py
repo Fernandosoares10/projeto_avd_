@@ -198,6 +198,10 @@ def montar() -> str:
     arquivo_extras = RASCUNHOS / "relatorio_fernando_textos_finais.md"
     if arquivo_extras.exists():
         extras = secoes_markdown(arquivo_extras)
+    # [IA] Claude Code – textos que o grupo ainda vai escrever (cada seção vazia vira PENDENTE no PDF)
+    arquivo_pendentes = RASCUNHOS / "relatorio_grupo_textos_pendentes.md"
+    if arquivo_pendentes.exists():
+        extras.update(secoes_markdown(arquivo_pendentes))
 
     def extra(titulo: str, descricao: str) -> str:
         return bloco_md(extras[titulo]) if extras.get(titulo, "").strip() else pendente(descricao)
@@ -226,6 +230,8 @@ def montar() -> str:
     h.append("<h3>Relações entre as variáveis e com a classe</h3>")
     h.append(figura(OUT_COMUM / "eda_relacional_correlacao_comum.png", "Correlação entre as variáveis numéricas do Obesity."))
     h.append(figura(OUT_COMUM / "eda_relacional_peso_altura_classe.png", "Peso e altura por classe de NObeyesdad."))
+    h.append(extra("Relações entre as variáveis (Parte Comum)",
+                   "interpretação das Figuras de correlação e de peso x altura por classe."))
 
     h.append("<h2>2. Padronização</h2>")
     h.append(md(f_padron.replace("Outro ponto importante é a padronização no K-Means. ", "A padronização é importante no K-Means. ")))
@@ -238,6 +244,8 @@ def montar() -> str:
     h.append(tabela(p1["matriz"], "Passada 1: matriz de confusão (quantidade de pessoas de cada classe real em cada "
                                   "cluster; o cabeçalho mostra a classe majoritária atribuída a cada cluster)."))
     h.append(tabela(p1["metricas"], f"Passada 1: precisão e recall por classe (acurácia = {p1['acuracia']}%)."))
+    h.append(extra("Interpretação da matriz e das métricas (Passada 1)",
+                   "leitura da matriz de confusão e da precisão/recall da Passada 1."))
 
     h.append("<h2>4. K-Means: Passada 2 (k fixo = 7)</h2>")
     h.append(extra("Passada 2: escolha das variáveis e matriz de confusão",
@@ -248,6 +256,8 @@ def montar() -> str:
     h.append(figura(OUT_COMUM / "passada2_matriz_confusao.png", "Passada 2: matriz de confusão em % por linha (cada classe real soma 100%), com a quantidade de pessoas entre parênteses."))
     p2 = resultado_passada(7)
     h.append(tabela(p2["metricas"], f"Passada 2: precisão e recall por classe (acurácia = {p2['acuracia']}%)."))
+    h.append(extra("Interpretação das métricas (Passada 2)",
+                   "leitura da precisão/recall por classe da Passada 2."))
 
     h.append("<h2>5. Discussão crítica</h2>")
     h.append("<h3>Passada 1 x Passada 2</h3>")
@@ -290,12 +300,14 @@ def montar() -> str:
     h.append("<h3>Visualização exploratória 3: heatmap de contatos x meses de inatividade</h3>")
     h.append(figura(OUT_ESP / "viz_exploratoria_3_heatmap_contatos_inatividade.png", "Taxa de cancelamento por contatos e meses de inatividade."))
     h.append(bloco_md(p_exp3))
+    h.append(extra("Por que este gráfico (exploratória 3)", "por que o heatmap foi o tipo de gráfico escolhido."))
     h.append("<h3>Visualização exploratória 4: dispersão de transações x valor transacionado</h3>")
     h.append(figura(OUT_ESP / "viz_exploratoria_4_dispersao_trans_ct_amt.png", "Quantidade de transações x valor transacionado, por situação do cliente."))
     h.append(bloco_md(nota_viz4))
     h.append("<h3>Visualização explanatória 1: cancelamento por faixa de transações e queda no 4º trimestre</h3>")
     h.append(figura(OUT_ESP / "viz_explanatoria_1_churn_transacoes_queda.png", "Taxa de cancelamento por faixa de transações e ritmo no Q4."))
     h.append(bloco_md(p_expl1))
+    h.append(extra("Por que este gráfico (explanatória 1)", "por que as barras agrupadas foram o tipo de gráfico escolhido."))
     h.append("<h3>Visualização explanatória 2: cancelamento por número de produtos</h3>")
     h.append(figura(OUT_ESP / "viz_explanatoria_2_barras_produtos.png", "Taxa de cancelamento por número de produtos do banco."))
     h.append(bloco_md(nota_expl2))
