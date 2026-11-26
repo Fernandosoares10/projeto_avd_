@@ -27,3 +27,6 @@ desktop.ini
 # Testes e cobertura
 .coverage
 htmlcov/
+
+# HTML intermediario do relatorio (gerado por docs/montar_relatorio.py)
+docs/rascunhos/relatorio_montado.html

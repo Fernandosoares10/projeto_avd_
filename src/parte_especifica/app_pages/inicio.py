@@ -5,8 +5,8 @@ import streamlit as st
 from dados import CLIENTE_CANCELOU, COLUNA_ALVO, DICIONARIO_BANK, carregar_bank
 
 # Textos definidos pelo grupo (a IA nao escreve pergunta de pesquisa nem publico-alvo)
-PERGUNTA_DE_PESQUISA = "_(texto do grupo)_"
-PUBLICO_ALVO = "_(texto do grupo)_"
+PERGUNTA_DE_PESQUISA = 'Quais características do comportamento dos clientes estão mais associadas ao cancelamento do cartão de crédito e podem ajudar o banco a identificar clientes com maior risco de cancelamento?'
+PUBLICO_ALVO = 'O dashboard é destinado às equipes de análise de dados, marketing e relacionamento com clientes do banco. A linguagem é objetiva e utiliza gráficos e indicadores para facilitar a identificação de padrões de comportamento, ajudando a compreender o cancelamento e a pensar em estratégias para retenção de clientes.'
 
 df = carregar_bank()
 cancelou = df[COLUNA_ALVO] == CLIENTE_CANCELOU

@@ -16,8 +16,8 @@ COLUNAS_COM_UNKNOWN = ["Education_Level", "Marital_Status", "Income_Category"]
 
 # Textos definidos pelo grupo em eda_unknown.ipynb (a IA nao escreve o mecanismo nem a justificativa)
 TRATAMENTO_ESCOLHIDO = "Unknown mantido como categoria propria (nenhuma linha removida, nenhum valor inventado)"
-MECANISMO_DE_AUSENCIA = "_(texto do grupo)_"
-JUSTIFICATIVA_TRATAMENTO = "_(texto do grupo)_"
+MECANISMO_DE_AUSENCIA = 'Para Education_Level, o mecanismo mais próximo parece ser MCAR, pois as taxas de Unknown apresentam poucas diferenças entre os grupos analisados. Para Marital_Status, existem algumas diferenças conforme outras variáveis, então podemos considerar a possibilidade de MAR. Já em Income_Category, a ausência apresenta uma diferença muito grande entre homens e mulheres, indicando um comportamento mais próximo de MAR. Não é possível afirmar esses mecanismos com certeza apenas pelas tabelas, principalmente porque não conseguimos observar diretamente o motivo pelo qual cada cliente deixou de informar seus dados.'
+JUSTIFICATIVA_TRATAMENTO = 'Decidimos manter Unknown como uma categoria própria porque não sabemos qual seria o valor correto de cada informação ausente. Substituir pela moda poderia criar informações que não correspondem à realidade dos clientes. Além disso, manter essa categoria permite analisar os registros sem excluir clientes ou perder informações importantes.'
 
 # Nota analitica da visualizacao exploratoria 1 (texto do grupo, igual ao notebook viz_exploratoria_1.ipynb)
 NOTA_VIZ1_O_QUE_MOSTRA = "O gráfico apresenta uma comparação da distribuição do valor total de transações realizadas pelos clientes nos últimos 12 meses (Total_Trans_Amt), separando aqueles que permaneceram no banco daqueles que cancelaram o cartão (Attrition_Flag). São apresentados a mediana, os quartis, a dispersão dos valores e possíveis pontos discrepantes de cada grupo."
