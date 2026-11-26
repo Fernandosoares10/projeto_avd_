@@ -198,7 +198,7 @@ def luis_html(itens: list[tuple[str, str]], h1_incluir: set[str], com_titulo: bo
             partes.append(f"<h4>{html.escape(conteudo)}</h4>")
         elif tipo == "p":
             # rotulos em negrito do Word chegam como "**Rotulo: texto" sem o fechamento
-            partes.append(md(re.sub(r"^\*\*([^*:]+:)\s*", r"**** ", conteudo)))
+            partes.append(md(re.sub(r"^\*\*([^*:]+:)\s*", r"**\1** ", conteudo)))
         elif tipo == "img":
             img_pendente = conteudo
         elif tipo == "legenda" and img_pendente:
