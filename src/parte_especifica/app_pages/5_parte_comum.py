@@ -15,6 +15,7 @@ from parte_comum.avaliacao import avaliar  # noqa: E402
 from parte_comum.clustering import (  # noqa: E402
     ajustar_kmeans,
     aplicar_mapa,
+    k_cotovelo,
     kmeans_inercias,
     mapear_clusters,
     projetar_2d,
@@ -68,10 +69,12 @@ with st.container(horizontal=True):
 # ---------------------------------------------------------------- cotovelo
 with st.container(border=True):
     st.subheader("Metodo do Cotovelo (k de 2 a 10)", anchor=False)
-    st.pyplot(plotar_cotovelo(inercias()))
+    # [IA] Claude Code – marcar o k do cotovelo (Passada 1) no grafico
+    k_sugerido = k_cotovelo(inercias())
+    st.pyplot(plotar_cotovelo(inercias(), k_escolhido=k_sugerido))
     st.caption(
-        "A inercia cai de forma gradual, sem um joelho nitido: o metodo sozinho nao aponta um k unico. "
-        f"Usamos k = {K_PADRAO} (numero de classes reais) como ponto de partida; mude abaixo para comparar."
+        f"Em vermelho, o k da Passada 1 (k = {k_sugerido}), dado pelo criterio da maior distancia ate a reta. "
+        f"O controle abaixo comeca em k = {K_PADRAO} (numero de classes reais, Passada 2); mude para comparar."
     )
 
 # ---------------------------------------------------------------- grupos e metricas

@@ -96,7 +96,7 @@ with st.container(border=True):
     })
     st.dataframe(tabela.round(2).sort_values("Total", ascending=False),
                  alt="Outliers por variavel: cercas do IQR, quantidades, percentual e assimetria")
-    st.caption("O z-score (|z| > 3) e mais rigoroso que o IQR em variaveis assimetricas: compare as duas colunas de total.")
+    st.caption("Compare as duas colunas de total: criterio IQR e criterio z-score (|z| > 3).")
 
 # ---------------------------------------------------------------- uma variavel e o efeito do tratamento
 with st.container(border=True):
