@@ -10,6 +10,7 @@ from parte_comum.clustering import (
     kmeans_inercias,
     mapear_clusters,
     projetar_2d,
+    silhueta,
 )
 
 
@@ -164,3 +165,17 @@ def test_k_cotovelo_dados_de_blobs_aponta_tres_grupos():
 def test_k_cotovelo_rejeita_series_invalidas(inercias):
     with pytest.raises(ValueError):
         k_cotovelo(inercias)
+
+
+def test_silhueta_alta_para_grupos_bem_separados():
+    X = pd.DataFrame({"x": [0.0, 0.1, 0.2, 10.0, 10.1, 10.2], "y": [0.0, 0.1, 0.0, 10.0, 10.1, 10.0]})
+    labels = np.array([0, 0, 0, 1, 1, 1])
+
+    assert silhueta(X, labels) > 0.9
+
+
+def test_silhueta_exige_pelo_menos_dois_clusters():
+    X = pd.DataFrame({"x": [0.0, 1.0, 2.0]})
+
+    with pytest.raises(ValueError):
+        silhueta(X, np.array([0, 0, 0]))

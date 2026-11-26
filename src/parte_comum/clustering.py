@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
+from sklearn.metrics import silhouette_score
 
 SEMENTE = 42
 N_INIT = 10
@@ -106,3 +107,14 @@ def projetar_2d(X: pd.DataFrame, random_state: int = SEMENTE) -> pd.DataFrame:
 
     componentes = PCA(n_components=2, random_state=random_state).fit_transform(X)
     return pd.DataFrame(componentes, columns=["PC1", "PC2"], index=X.index)
+
+
+# [IA] Claude Code – coeficiente de silhueta médio dos clusters
+def silhueta(X: pd.DataFrame, labels: np.ndarray) -> float:
+    """Silhueta média (de -1 a 1) dos rótulos `labels` sobre os dados `X` (já padronizados).
+
+    Levanta ValueError se houver menos de 2 clusters.
+    """
+    if len(np.unique(labels)) < 2:
+        raise ValueError("A silhueta exige pelo menos 2 clusters")
+    return float(silhouette_score(X, labels))
