@@ -30,3 +30,10 @@ htmlcov/
 
 # HTML intermediario do relatorio (gerado por docs/montar_relatorio.py)
 docs/rascunhos/relatorio_montado.html
+
+# Ferramentas locais (nao fazem parte da entrega)
+.omc/
+.ruff_cache/
+
+# Enunciado do projeto (material da disciplina, so para consulta local)
+docs/Projeto_Final_AVD_20262.pdf
