@@ -1,4 +1,4 @@
-# [IA] Claude Code – pagina Outliers: multiplicador do IQR ajustavel, boxplot, tratamento (manter, limitar, remover) e relacao com o cancelamento
+# [IA] Claude Code – pagina Outliers: multiplicador do IQR ajustavel, boxplot, tratamento (manter, limitar, remover), relacao com o cancelamento e exploratoria 4
 import pandas as pd
 import plotly.express as px
 import streamlit as st
@@ -13,23 +13,19 @@ from dados import (
     carregar_bank,
 )
 from outliers import ESTRATEGIAS, K_IQR, mascara_outliers, resumo_outliers, taxa_alvo_por_grupo, tratar
-from taxas import taxa_do_recorte, taxa_por_categoria
+from taxas import taxa_do_recorte
 
-# Notas analiticas e titulo escritos pelo grupo, iguais aos notebooks viz_exploratoria_4 e viz_explanatoria_2
+# Nota analitica e titulo escritos pelo grupo, iguais ao notebook viz_exploratoria_4
 TITULO_VIZ4 = 'Clientes com Menor Movimentação Apresentam Maior Taxa de Cancelamento'
 NOTA_VIZ4_O_QUE_MOSTRA = 'O gráfico mostra a relação entre a quantidade de transações e o valor total que cada cliente movimentou em 12 meses. Cada ponto representa um cliente, e as cores diferenciam quem continuou no banco de quem cancelou.'
 NOTA_VIZ4_INSIGHT = 'Existe uma relação positiva entre a quantidade de transações e o valor movimentado, com correlação de 0,81. Além disso, clientes que cancelaram costumam ter menos transações e movimentar menos dinheiro. O principal alerta está na região abaixo de 60 transações e US$ 3.000: ela concentra 34,9% dos clientes, mas reúne 77,9% de todos os cancelamentos. Isso indica que clientes com pouca movimentação merecem atenção do banco.'
 NOTA_VIZ4_POR_QUE = 'O gráfico de dispersão foi escolhido porque permite analisar duas variáveis numéricas ao mesmo tempo, facilitando a identificação de padrões, concentrações de clientes e diferenças entre quem permaneceu no banco e quem cancelou.'
-NOTA_EXPL2_O_QUE_MOSTRA = 'O gráfico mostra a taxa de cancelamento dos clientes de acordo com a quantidade de produtos que possuem no banco, de 1 a 6. Também apresenta a quantidade de clientes em cada grupo e uma linha de referência com a taxa geral de cancelamento da base, que é de 16,1%.'
-NOTA_EXPL2_INSIGHT = 'Clientes que possuem apenas 1 ou 2 produtos apresentam uma taxa de cancelamento maior, de 26,9%. Já entre os clientes que possuem de 4 a 6 produtos, a taxa cai para 11,4%. Ou seja, clientes com menos produtos cancelam aproximadamente 2,4 vezes mais. Outro ponto importante é que os clientes com 1 ou 2 produtos representam apenas 21,3% da base, mas correspondem a 35,6% de todos os cancelamentos. Isso mostra que ter poucos produtos contratados pode ser um sinal de maior risco de cancelamento.'
-NOTA_EXPL2_POR_QUE = 'Escolhemos o gráfico de barras porque ele facilita a comparação da taxa de cancelamento entre diferentes quantidades de produtos. O vermelho destaca os grupos com maior taxa de cancelamento, enquanto a linha da média permite comparar cada grupo com a taxa geral da base.'
 
 
 # Textos do grupo (Fernando), iguais ao notebook eda_outliers.ipynb
 TEXTO_OUTLIERS_REAIS = 'Os outliers parecem ser clientes reais, e não erros nos dados. Isso porque os valores extremos continuam dentro de limites possíveis, sem números negativos ou fora das escalas esperadas. Por exemplo, existem clientes com limite de crédito de até US$ 34.516, movimentação de até US$ 18.484 e até 139 transações em 12 meses. Pelo critério IQR, foram encontrados outliers em 10 das 14 variáveis numéricas, e 3.326 clientes (32,8% da base) possuem pelo menos um valor extremo. Portanto, ser outlier não significa que o dado esteja errado, mas sim que aquele cliente tem um comportamento diferente da maioria.'
 TEXTO_OUTLIERS_CANCELAMENTO = 'A tabela mostra que existe relação em algumas variáveis, mas não significa que todo outlier tenha maior chance de cancelar. Por exemplo, os clientes considerados outliers em Total_Ct_Chng_Q4_Q1 apresentam taxa de cancelamento de 22,1%, enquanto os demais têm 15,8%. Já em Total_Trans_Amt, acontece o contrário: os outliers cancelam menos, com taxa de 9,8%, contra 16,7% dos demais. Em Credit_Limit, as taxas são iguais, de 16,1%. Isso mostra que os valores extremos podem representar comportamentos diferentes e que alguns deles ajudam a entender o cancelamento.'
 TEXTO_DECISAO = 'O grupo propõe manter os outliers e não remover os clientes, pois os valores são plausíveis e podem trazer informações importantes para a análise. Remover todos os clientes que possuem pelo menos um outlier faria a base cair de 10.127 para 6.801 clientes, ou seja, seriam perdidos 32,8% dos dados. Como alternativa, podemos limitar alguns valores nas cercas do IQR para diminuir a assimetria das variáveis, sem excluir nenhum cliente. Assim, a decisão principal é manter os registros e evitar a perda de informações importantes.'
-TITULO_EXPL2 = 'Clientes com Menos Produtos Contratados Apresentam Maior Taxa de Cancelamento'
 
 MIN_OUTLIERS_PARA_TAXA = 30
 
@@ -195,7 +191,6 @@ def dec_br(valor: float, casas: int = 1) -> str:
 CORTE_TRANSACOES = 60
 CORTE_VALOR_BAIXO = 3000
 FAIXA_VALOR_MEDIO = (6000, 11000)
-COLUNA_PRODUTOS = "Total_Relationship_Count"
 
 
 @st.cache_data
@@ -236,42 +231,6 @@ def analisar_dispersao() -> dict:
     }
 
 
-@st.cache_data
-def analisar_produtos() -> dict:
-    """Numeros e grafico da explanatoria 2. Nao dependem do k do slider, entao ficam em cache."""
-    cancelou = df[COLUNA_ALVO] == CLIENTE_CANCELOU
-    por_produtos = taxa_por_categoria(df, COLUNA_PRODUTOS, COLUNA_ALVO, CLIENTE_CANCELOU)
-    poucos = df[COLUNA_PRODUTOS] <= 2
-    muitos = df[COLUNA_PRODUTOS] >= 4
-    taxa_base = cancelou.mean() * 100
-    taxa_poucos = taxa_do_recorte(df, poucos, COLUNA_ALVO, CLIENTE_CANCELOU)
-    taxa_muitos = taxa_do_recorte(df, muitos, COLUNA_ALVO, CLIENTE_CANCELOU)
-    razao = taxa_poucos / taxa_muitos
-
-    grafico = por_produtos.reset_index().assign(
-        Rotulo=lambda d: d[COLUNA_PRODUTOS].astype(int).astype(str) + " (n = " + d["n"].map(inteiro_br) + ")",
-        Grupo=lambda d: d[COLUNA_PRODUTOS].map(lambda p: "1 ou 2 produtos" if p <= 2 else "3 ou mais produtos"),
-    )
-    fig = px.bar(
-        grafico, x="Rotulo", y="taxa", color="Grupo", text=grafico["taxa"].map(lambda t: f"{t:.1f}%"),
-        color_discrete_map={"1 ou 2 produtos": CORES_SITUACAO["Cancelou"], "3 ou mais produtos": "#8C8C8C"},
-        title=TITULO_EXPL2,
-        labels={"Rotulo": "Numero de produtos do banco que o cliente tem", "taxa": "Taxa de cancelamento (%)", "Grupo": ""},
-    )
-    fig.add_hline(y=taxa_base, line_dash="dash", line_color="black",
-                  annotation_text=f"Base toda: {dec_br(taxa_base)}%", annotation_position="top right")
-    fig.update_traces(textposition="outside", cliponaxis=False)
-
-    return {
-        "fig": fig,
-        "taxa_poucos": taxa_poucos,
-        "taxa_muitos": taxa_muitos,
-        "taxa_tres": por_produtos.loc[3, "taxa"],
-        "razao": razao,
-        "poucos_na_base": poucos.mean() * 100,
-        "poucos_nos_cancelados": poucos[cancelou].mean() * 100,
-    }
-
 
 def secao_dispersao() -> None:
     d = analisar_dispersao()
@@ -291,21 +250,6 @@ def secao_dispersao() -> None:
         st.markdown(f"**Qual insight pode ser extraido:** {NOTA_VIZ4_INSIGHT}")
         st.markdown(f"**Por que este tipo de visualizacao:** {NOTA_VIZ4_POR_QUE}")
 
-def secao_produtos() -> None:
-    d = analisar_produtos()
-    st.subheader("Visualizacao explanatoria 2: produtos do banco e cancelamento", anchor=False)
-    with st.container(horizontal=True):
-        st.metric("Cancelam com 1 ou 2 produtos", f"{d['taxa_poucos']:.1f}%", border=True)
-        st.metric("Cancelam com 4 a 6 produtos", f"{d['taxa_muitos']:.1f}%", border=True)
-        st.metric("Diferenca entre os dois grupos", f"{d['razao']:.1f}x", border=True)
-    st.plotly_chart(d["fig"], key="out_expl2")
-    with st.expander("Nota analitica", icon=":material/edit_note:"):
-        st.markdown(f"**O que esta sendo mostrado:** {NOTA_EXPL2_O_QUE_MOSTRA}")
-        st.markdown(f"**Qual insight pode ser extraido:** {NOTA_EXPL2_INSIGHT}")
-        st.markdown(f"**Por que este tipo de visualizacao:** {NOTA_EXPL2_POR_QUE}")
 
 with st.container(border=True):
     secao_dispersao()
-
-with st.container(border=True):
-    secao_produtos()

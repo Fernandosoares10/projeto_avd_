@@ -1,4 +1,4 @@
-# [IA] Claude Code – pagina Relacoes do dashboard (filtros, correlacoes, heatmap, explanatoria 1, comparacao lado a lado e explorador X x Y)
+# [IA] Claude Code – pagina Relacoes do dashboard (filtros, correlacoes, heatmap, explanatorias 1 e 2, comparacao lado a lado e explorador X x Y)
 from pathlib import Path
 
 import numpy as np
@@ -6,6 +6,8 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
+
+from explanatoria_produtos import secao_produtos
 
 RAIZ = Path(__file__).resolve().parents[3]
 CAMINHO_TRATADO = RAIZ / "out" / "parte_especifica" / "bankchurners_tratado.csv"
@@ -236,6 +238,11 @@ def main() -> None:
     fig_exp.update_traces(textposition="outside")
     fig_exp.update_layout(height=480, yaxis_range=[0, min(resumo_exp["taxa"].max() + 18, 108)])
     st.plotly_chart(fig_exp, width="stretch")
+
+    st.divider()
+
+    # [IA] Claude Code – explanatoria 2 movida da pagina Outliers para ficar junto da explanatoria 1
+    secao_produtos()
 
     st.divider()
 

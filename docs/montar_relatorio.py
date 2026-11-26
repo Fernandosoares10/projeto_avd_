@@ -18,7 +18,6 @@ from pathlib import Path
 
 import sys
 
-import mistune
 import pandas as pd
 
 RAIZ = Path(__file__).resolve().parents[1]
@@ -39,8 +38,34 @@ SAIDA_HTML = RAIZ / "docs" / "rascunhos" / "relatorio_montado.html"
 SAIDA_PDF = RAIZ / "relatorio.pdf"
 EDGE = Path(r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe")
 
-md = mistune.create_markdown(plugins=["table"])
 contador_fig = 0
+
+
+# [IA] Claude Code – conversor mínimo de Markdown só com a biblioteca padrão (parágrafos, listas, negrito,
+# itálico e código), para não depender de bibliotecas fora da lista permitida no enunciado
+def _inline(texto: str) -> str:
+    texto = html.escape(texto, quote=False)
+    texto = re.sub(r"`([^`]+)`", r"<code>\1</code>", texto)
+    texto = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", texto)
+    return re.sub(r"(?<![\w*])\*(?!\s)(.+?)(?<!\s)\*(?![\w*])", r"<em>\1</em>", texto)
+
+
+def md(texto: str) -> str:
+    """Markdown simples -> HTML: blocos separados por linha em branco viram <p>, <ul> ou <ol>."""
+    saida = []
+    for bloco in re.split(r"\n\s*\n", texto.strip()):
+        linhas = [linha.strip() for linha in bloco.splitlines() if linha.strip()]
+        if not linhas:
+            continue
+        if all(re.match(r"[-*] ", linha) for linha in linhas):
+            itens = "".join(f"<li>{_inline(linha[2:])}</li>" for linha in linhas)
+            saida.append(f"<ul>{itens}</ul>")
+        elif all(re.match(r"\d+\. ", linha) for linha in linhas):
+            itens = "".join(f"<li>{_inline(re.sub(r'^\d+\. ', '', linha))}</li>" for linha in linhas)
+            saida.append(f"<ol>{itens}</ol>")
+        else:
+            saida.append(f"<p>{_inline(' '.join(linhas))}</p>")
+    return "\n".join(saida)
 
 
 # ---------------------------------------------------------------- leitura das fontes

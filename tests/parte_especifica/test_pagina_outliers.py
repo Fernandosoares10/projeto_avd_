@@ -83,11 +83,12 @@ def test_variavel_sem_outliers_nao_quebra_a_pagina_nem_remove_clientes(app):
     assert any("nao tem outliers" in aviso.value for aviso in app.info)
 
 
-def test_pagina_tem_a_exploratoria_4_e_a_explanatoria_2(app):
+def test_pagina_tem_a_exploratoria_4_e_nao_tem_mais_a_explanatoria_2(app):
     titulos = [s.value for s in app.subheader]
 
     assert any("Visualizacao exploratoria 4" in t for t in titulos)
-    assert any("Visualizacao explanatoria 2" in t for t in titulos)
+    # a explanatoria 2 foi para a pagina Relacoes, junto da explanatoria 1
+    assert not any("Visualizacao explanatoria 2" in t for t in titulos)
 
 
 def test_exploratoria_4_mostra_as_medianas_de_transacoes_por_situacao(app):
@@ -113,23 +114,10 @@ def test_exploratoria_4_usa_o_titulo_do_grupo(app):
     assert any("Clientes com Menor Movimenta" in t for t in titulos)
 
 
-def test_explanatoria_2_nota_traz_as_taxas_e_o_peso_do_grupo(app):
-    textos = _textos(app)
-
-    assert "26,9%" in textos and "11,4%" in textos and "2,4" in textos
-    assert "21,3%" in textos and "35,6%" in textos
-
-
-def test_explanatoria_2_mostra_as_taxas_reais_por_numero_de_produtos(app):
-    assert _metrica(app, "Cancelam com 1 ou 2 produtos") == "26.9%"
-    assert _metrica(app, "Cancelam com 4 a 6 produtos") == "11.4%"
-    assert _metrica(app, "Diferenca entre os dois grupos") == "2.4x"
-
-
 def test_visualizacoes_novas_tem_nota_analitica(app):
     notas = [e for e in app.expander if "Nota analitica" in e.label]
 
-    assert len(notas) == 2
+    assert len(notas) == 1
 
 
 def test_grafico_de_cancelamento_nao_mostra_variaveis_com_poucos_outliers(app):

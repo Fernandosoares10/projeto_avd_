@@ -91,8 +91,8 @@ entram no menu lateral automaticamente quando o arquivo existe:
 | Início | `inicio.py` |
 | Qualidade dos dados | `1_qualidade_dos_dados.py` |
 | Distribuições | `2_distribuicoes.py` |
-| Relações | `3_relacoes.py` |
-| Outliers | `4_outliers.py` |
+| Relações (inclui as visualizações explanatórias 1 e 2) | `3_relacoes.py` |
+| Outliers (inclui a visualização exploratória 4) | `4_outliers.py` |
 | Obesity: K-Means (Parte Comum) | `5_parte_comum.py` |
 
 Funções e constantes compartilhadas pelas páginas (leitura dos dados, cores, dicionário das variáveis) ficam em
@@ -164,7 +164,7 @@ Divisão das tarefas combinada pelo grupo. **R** = responsável pela entrega; **
 | Dashboard | Página Qualidade dos dados | R | | | |
 | Dashboard | Página Distribuições, com filtros e exportação | | R | | |
 | Dashboard | Página Relações, com comparação lado a lado e seleção de eixos | | | R | |
-| Dashboard | Página Outliers | | | | R |
+| Dashboard | Página Outliers e explanatória 2 na página Relações (`explanatoria_produtos.py`) | | | | R |
 | Dashboard | Página da Parte Comum | | | | R |
 | Entrega | Relatório: Passada 2 e EDA estrutural | R | | | |
 | Entrega | Relatório: EDA da Parte Comum e distribuições | | R | | |
