@@ -25,16 +25,11 @@ NOTA_EXPL2_INSIGHT = 'Clientes que possuem apenas 1 ou 2 produtos apresentam uma
 NOTA_EXPL2_POR_QUE = 'O gráfico de barras foi escolhido porque facilita comparar valores entre categorias diferentes, nesse caso, a quantidade de produtos contratados. Assim, fica fácil perceber quais grupos possuem as maiores e menores taxas de cancelamento. O vermelho foi usado para destacar os clientes com 1 ou 2 produtos, pois são os grupos que apresentam maior taxa de cancelamento e merecem mais atenção. A linha tracejada permite comparar cada grupo com a taxa geral da base.'
 
 
-# Decisao do grupo sobre o tratamento (proposta do notebook eda_outliers.ipynb, para revisao)
-TEXTO_DECISAO = """
-1. **Manter todos os valores.** Os extremos sao plausiveis (clientes de renda alta, grandes gastadores, clientes
-   mais velhos ou mais antigos) e nao ha erro de digitacao nem valor fora da escala.
-2. **Nao remover linhas.** Tirar os outliers de todas as variaveis (com k = 1,5) descartaria 32,8% da base,
-   justamente os perfis mais distintos. Os outliers tambem carregam informacao sobre o cancelamento.
-3. **Limitar nas cercas do IQR so como recurso de analise**, em comparacoes sensiveis a escala (reduz a
-   assimetria sem perder clientes).
-4. **Variaveis de contagem** (contatos, meses inativo, meses de relacionamento): valores validos da escala.
-"""
+# Textos do grupo (Fernando), iguais ao notebook eda_outliers.ipynb
+TEXTO_OUTLIERS_REAIS = 'Os outliers parecem ser clientes reais, e não erros nos dados. Isso porque os valores extremos continuam dentro de limites possíveis, sem números negativos ou fora das escalas esperadas. Por exemplo, existem clientes com limite de crédito de até US$ 34.516, movimentação de até US$ 18.484 e até 139 transações em 12 meses. Pelo critério IQR, foram encontrados outliers em 10 das 14 variáveis numéricas, e 3.326 clientes (32,8% da base) possuem pelo menos um valor extremo. Portanto, ser outlier não significa que o dado esteja errado, mas sim que aquele cliente tem um comportamento diferente da maioria.'
+TEXTO_OUTLIERS_CANCELAMENTO = 'A tabela mostra que existe relação em algumas variáveis, mas não significa que todo outlier tenha maior chance de cancelar. Por exemplo, os clientes considerados outliers em Total_Ct_Chng_Q4_Q1 apresentam taxa de cancelamento de 22,1%, enquanto os demais têm 15,8%. Já em Total_Trans_Amt, acontece o contrário: os outliers cancelam menos, com taxa de 9,8%, contra 16,7% dos demais. Em Credit_Limit, as taxas são iguais, de 16,1%. Isso mostra que os valores extremos podem representar comportamentos diferentes e que alguns deles ajudam a entender o cancelamento.'
+TEXTO_DECISAO = 'O grupo propõe manter os outliers e não remover os clientes, pois os valores são plausíveis e podem trazer informações importantes para a análise. Remover todos os clientes que possuem pelo menos um outlier faria a base cair de 10.127 para 6.801 clientes, ou seja, seriam perdidos 32,8% dos dados. Como alternativa, podemos limitar alguns valores nas cercas do IQR para diminuir a assimetria das variáveis, sem excluir nenhum cliente. Assim, a decisão principal é manter os registros e evitar a perda de informações importantes.'
+TITULO_EXPL2 = 'Clientes com Menos Produtos Contratados Apresentam Maior Taxa de Cancelamento'
 
 MIN_OUTLIERS_PARA_TAXA = 30
 
@@ -186,8 +181,9 @@ with st.container(border=True):
 # ---------------------------------------------------------------- decisao
 with st.container(border=True):
     st.subheader("Decisao sobre o tratamento", anchor=False)
-    st.markdown(TEXTO_DECISAO)
-    st.caption("Proposta do notebook eda_outliers.ipynb, sujeita a revisao do grupo.")
+    st.markdown(f"**Os outliers sao erros ou clientes reais?** {TEXTO_OUTLIERS_REAIS}")
+    st.markdown(f"**Ser outlier tem relacao com cancelar?** {TEXTO_OUTLIERS_CANCELAMENTO}")
+    st.markdown(f"**Tratamento adotado:** {TEXTO_DECISAO}")
 
 
 def dec_br(valor: float, casas: int = 1) -> str:
@@ -259,7 +255,7 @@ def analisar_produtos() -> dict:
     fig = px.bar(
         grafico, x="Rotulo", y="taxa", color="Grupo", text=grafico["taxa"].map(lambda t: f"{t:.1f}%"),
         color_discrete_map={"1 ou 2 produtos": CORES_SITUACAO["Cancelou"], "3 ou mais produtos": "#8C8C8C"},
-        title=f"Clientes com 1 ou 2 produtos tem taxa de cancelamento {dec_br(razao)} vezes a dos clientes com 4 a 6",
+        title=TITULO_EXPL2,
         labels={"Rotulo": "Numero de produtos do banco que o cliente tem", "taxa": "Taxa de cancelamento (%)", "Grupo": ""},
     )
     fig.add_hline(y=taxa_base, line_dash="dash", line_color="black",
