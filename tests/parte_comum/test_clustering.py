@@ -6,6 +6,7 @@ import pytest
 from parte_comum.clustering import (
     aplicar_mapa,
     ajustar_kmeans,
+    k_cotovelo,
     kmeans_inercias,
     mapear_clusters,
     projetar_2d,
@@ -137,3 +138,29 @@ def test_projetar_2d_devolve_duas_colunas_e_mesmo_numero_de_linhas():
 def test_projetar_2d_rejeita_menos_de_duas_variaveis():
     with pytest.raises(ValueError):
         projetar_2d(pd.DataFrame({"x": [1.0, 2.0, 3.0]}))
+
+
+# [IA] Claude Code – testes da escolha do k pelo cotovelo
+def test_k_cotovelo_acha_o_joelho_de_curva_conhecida():
+    # Queda forte ate k = 4 e quase plana depois: o cotovelo e k = 4
+    inercias = pd.Series([100.0, 60.0, 30.0, 25.0, 22.0, 20.0, 19.0], index=range(2, 9))
+    assert k_cotovelo(inercias) == 4
+
+
+def test_k_cotovelo_usa_os_valores_do_indice():
+    inercias = pd.Series([50.0, 20.0, 15.0, 14.0], index=[3, 5, 7, 9])
+    assert k_cotovelo(inercias) == 5
+
+
+def test_k_cotovelo_dados_de_blobs_aponta_tres_grupos():
+    inercias = kmeans_inercias(_blobs(), range(2, 8))
+    assert k_cotovelo(inercias) == 3
+
+
+@pytest.mark.parametrize("inercias", [
+    pd.Series([10.0, 5.0], index=[2, 3]),
+    pd.Series([7.0, 3.0, 7.0], index=[2, 3, 4]),
+])
+def test_k_cotovelo_rejeita_series_invalidas(inercias):
+    with pytest.raises(ValueError):
+        k_cotovelo(inercias)

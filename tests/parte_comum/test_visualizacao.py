@@ -63,3 +63,16 @@ def test_plotar_clusters_rejeita_tamanhos_diferentes():
 
     with pytest.raises(ValueError):
         plotar_clusters(proj, np.array([0]))
+
+
+# [IA] Claude Code – testes da marcacao do k escolhido no grafico do cotovelo
+def test_plotar_cotovelo_marca_k_escolhido_com_legenda():
+    inercias = pd.Series([100.0, 60.0, 30.0, 25.0], index=[2, 3, 4, 5])
+    ax = plotar_cotovelo(inercias, k_escolhido=4).axes[0]
+    assert ax.get_legend() is not None
+    assert any("k = 4" in t.get_text() for t in ax.get_legend().get_texts())
+
+
+def test_plotar_cotovelo_rejeita_k_escolhido_fora_da_serie():
+    with pytest.raises(ValueError):
+        plotar_cotovelo(pd.Series([3.0, 2.0, 1.0], index=[2, 3, 4]), k_escolhido=9)

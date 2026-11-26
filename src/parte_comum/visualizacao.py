@@ -10,14 +10,24 @@ import pandas as pd
 from matplotlib.figure import Figure
 
 
-def plotar_cotovelo(inercias: pd.Series) -> Figure:
-    """Curva inércia x k. O índice da série são os valores de k."""
+def plotar_cotovelo(inercias: pd.Series, k_escolhido: int | None = None) -> Figure:
+    """Curva inércia x k. O índice da série são os valores de k.
+
+    Com `k_escolhido`, marca o ponto do cotovelo e adiciona legenda.
+    """
     if inercias.empty:
         raise ValueError("A série de inércias está vazia")
 
     fig = Figure(figsize=(7, 4))
     ax = fig.subplots()
-    ax.plot(inercias.index, inercias.values, marker="o")
+    ax.plot(inercias.index, inercias.values, marker="o", label="Inércia")
+    # [IA] Claude Code – destacar o k escolhido pelo cotovelo e adicionar legenda
+    if k_escolhido is not None:
+        if k_escolhido not in inercias.index:
+            raise ValueError(f"k_escolhido={k_escolhido} não está entre os k da série")
+        ax.plot([k_escolhido], [inercias.loc[k_escolhido]], marker="o", markersize=12,
+                color="#C44E52", linestyle="", label=f"Cotovelo: k = {k_escolhido}")
+        ax.legend()
     ax.set_xticks(list(inercias.index))
     ax.set_xlabel("k (número de clusters)")
     ax.set_ylabel("Inércia")

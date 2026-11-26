@@ -35,6 +35,27 @@ def kmeans_inercias(
     return pd.Series(inercias, index=ks, name="inercia", dtype=float)
 
 
+# [IA] Claude Code – escolha automatica do k pelo Metodo do Cotovelo (ponto de maior distancia ate a reta)
+def k_cotovelo(inercias: pd.Series) -> int:
+    """k do cotovelo: ponto da curva inércia x k mais distante da reta que liga o primeiro ao último ponto.
+
+    k e inércia são normalizados para [0, 1] antes, para as duas escalas pesarem igual.
+    Precisa de pelo menos 3 valores de k e de inércias que não sejam todas iguais.
+    """
+    if len(inercias) < 3:
+        raise ValueError("São necessários pelo menos 3 valores de k para achar o cotovelo")
+    ks = np.asarray(inercias.index, dtype=float)
+    y = inercias.to_numpy(dtype=float)
+    if y[0] == y[-1]:
+        raise ValueError("As inércias do primeiro e do último k são iguais; não há curva")
+
+    x_norm = (ks - ks[0]) / (ks[-1] - ks[0])
+    y_norm = (y - y[-1]) / (y[0] - y[-1])
+    # A reta vai de (0, 1) a (1, 0): a distância de cada ponto a ela é proporcional a (1 - x) - y
+    distancias = (1 - x_norm) - y_norm
+    return int(inercias.index[int(np.argmax(distancias))])
+
+
 def ajustar_kmeans(
     X: pd.DataFrame, k: int, random_state: int = SEMENTE
 ) -> np.ndarray:
