@@ -342,8 +342,8 @@ def montar() -> str:
                                    "atributos pré-atentivos (cor, posição, título) foram usados para destacá-la."))
 
     h.append("<h2>10. Dashboard em Streamlit</h2>")
-    h.append(md("O dashboard (`streamlit run src/parte_especifica/dashboard.py`) tem seis páginas: Início, Qualidade "
-                "dos dados, Distribuições, Relações, Outliers e uma página da Parte Comum com o K-Means do Obesity."))
+    h.append(extra("Dashboard (visão geral)", "como o dashboard está organizado (páginas e o que cada uma mostra) e "
+                                              "como executá-lo (`streamlit run src/parte_especifica/dashboard.py`)."))
     h.append(bloco_md(pedro.get("Página 3 do dashboard (`Relacoes`)", "")))
 
     h.append("<h2>11. Resposta à pergunta de pesquisa</h2>")
